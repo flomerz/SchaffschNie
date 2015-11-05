@@ -13,7 +13,7 @@ parseGameObject :: Char -> Int -> GameObject
 parseGameObject '.' = setGameObjectPosition $ initGameObjectAir
 parseGameObject '#' = setGameObjectPosition $ initGameObjectBox
 parseGameObject '_' = setGameObjectPosition $ initGameObjectLava
-parseGameObject _ = error "GameObject not valid"
+parseGameObject c = error $ "GameObject for char " ++ show c ++ " not found!"
 
 parseGameObjects :: [ObjectSign] -> [GameObject]
 parseGameObjects signs = map parse signs
