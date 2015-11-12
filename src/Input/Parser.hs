@@ -1,0 +1,38 @@
+module Input.Parser
+    ( parse
+    ) where
+
+import Prelude hiding
+        ( Left
+        , Right
+        )
+
+import qualified SDL
+
+import Input.Events
+
+
+parse :: Maybe SDL.EventPayload -> InputEvent
+parse payload = case payload of
+        Just SDL.QuitEvent              -> Quit
+
+        Just (SDL.KeyboardEvent ev)     -> case SDL.keyboardEventKeyMotion ev of
+                                            SDL.Pressed     -> Key $ parseKey ev
+                                            SDL.Released    -> Key Nothing
+
+        Just (SDL.MouseButtonEvent ev)  -> case (SDL.mouseButtonEventMotion ev, SDL.mouseButtonEventButton ev) of
+                                            (SDL.Pressed, SDL.ButtonLeft)   -> Mouse $ Just Left
+                                            (SDL.Pressed, SDL.ButtonRight)  -> Mouse $ Just Right
+                                            (SDL.Released, _)               -> Mouse Nothing
+
+        _                               -> NoInput
+
+parseKey :: SDL.KeyboardEventData -> KeyEvent
+parseKey ev = case code of
+                SDL.Scancode1 -> Just KeySpace
+                SDL.Scancode1 -> Just Key1
+                SDL.Scancode1 -> Just Key2
+                SDL.Scancode1 -> Just Key3
+                _             -> Nothing
+        where code = SDL.keysymScancode $ SDL.keyboardEventKeysym ev
+

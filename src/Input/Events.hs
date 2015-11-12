@@ -1,7 +1,9 @@
 module Input.Events where
 
-data InputEvent = KeyEvent
+data InputEvent = Key KeyEvent
+                | Mouse MouseEvent
                 | Quit
+                | NoInput
 
 type KeyEvent = Maybe Key
 
