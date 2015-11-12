@@ -43,9 +43,9 @@ data RenderObject = RenderObject { objType      :: ObjectType
 
 
 instance Default RenderObject where
-        def = RenderObject { objType = error "RenderObject type wasn't define"
-                           , objPos   = (0, 0)
-                           , objColour = white
+        def = RenderObject { objType    = error "RenderObject type wasn't define"
+                           , objPos     = (0, 0)
+                           , objColour  = white
                            }
 
 -- Terms are written with postfix '_' indicating data rather than code.
