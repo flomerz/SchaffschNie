@@ -19,4 +19,4 @@ read lvl = fmap (parseGameWorld . transform) $ readFile (levelPath ++ "lvl" ++ (
 
 transform :: String -> [ObjectSignColumn]
 transform str = addPosition . transpose . reverse $ splitOn "\n" str
-                where addPosition lvl = zip (map (\x -> zip x [0..]) lvl) [0..]
+         where addPosition lvl = zip (map (\x -> zip x [0..]) lvl) [0..]
