@@ -13,6 +13,8 @@ data Key = KeySpace
          | Key1
          | Key2
          | Key3
+         deriving (Show, Eq)
 
 data MouseButton = Left
                  | Right
+                 deriving (Show, Eq)

@@ -25,3 +25,10 @@ initAppInput = AppInput { inpMouse  = Nothing
                         , inpKey    = Nothing
                         , inpQuit   = False
                         }
+
+accumulateEvent :: AppInput -> InputEvent -> AppInput
+accumulateEvent appInput inputEvent = case inputEvent of
+        Key keyEvent        -> appInput { inpKey = keyEvent }
+        Mouse mouseEvent    -> appInput { inpMouse = mouseEvent }
+        Quit                -> appInput { inpQuit = True }
+        NoInput             -> appInput

@@ -8,13 +8,12 @@ module Output.Core
 
 import Prelude hiding (init)
 
-
-import qualified SDL
-import qualified Graphics.UI.SDL.TTF as Font
-
 import Data.Text (pack)
 import Data.StateVar (($=))
 import Linear (V2(..), V4(..))
+
+import qualified SDL
+import qualified Graphics.UI.SDL.TTF as Font
 
 import Output.Renderer
 import Output.Shapes
@@ -35,7 +34,7 @@ init (winWidth, winHeight) title = do
     SDL.showWindow window
 
     renderer <- SDL.createRenderer window (-1) SDL.defaultRenderer
-    SDL.rendererDrawColor renderer $= V4 maxBound maxBound maxBound maxBound
+    SDL.rendererDrawColor renderer $= V4 maxBound maxBound maxBound 0
 
     return (window, renderer)
 

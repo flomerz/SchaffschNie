@@ -1,8 +1,7 @@
 -- Thanks to Konstantin Zudov
 
 module Output.Shapes
-    ( Frame
-    , Shape(..)
+    ( Shape(..)
     , ObjectType(..)
     , RenderObject(..)
     , def
@@ -23,7 +22,6 @@ import Data.Colour
 import Data.Colour.SRGB
 import Data.Colour.Names
 
-type Frame = RenderObject
 
 data Shape = Circle Int
            | Rectangle (Double, Double)

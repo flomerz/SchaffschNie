@@ -2,6 +2,7 @@ module Input.Core
     ( input
     , getTime
     , module Input.Parser
+    , module Input.Events
     ) where
 
 import qualified SDL

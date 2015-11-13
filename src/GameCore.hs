@@ -1,13 +1,19 @@
 module GameCore where
 
-import FRP.Yampa
-
 import Control.Monad
 import Control.Concurrent
+
+import qualified FRP.Yampa as Yampa
+import FRP.Yampa ( Event(..)
+                 , DTime
+                 , SF
+                 , (>>>)
+                 )
 
 import qualified Input.Core as Input
 import qualified Output.Core as Output
 
+import qualified GameLogic
 import AppTypes
 
 
@@ -35,6 +41,9 @@ startYampa inputFunction outputFunction timeFunction = do
                     deltaTime <- getTimeDelta currentTime timeMVar
                     appInputEvent <- inputFunction
                     return (deltaTime, Just appInputEvent)
+                    where
+                        getTimeDelta :: Fractional a => a -> MVar a -> IO a
+                        getTimeDelta currentTime mVar = (currentTime -) <$> swapMVar mVar currentTime
 
             yampaOutput :: Bool -> AppOutput -> IO Bool
             yampaOutput changed appOutput = do
@@ -42,10 +51,9 @@ startYampa inputFunction outputFunction timeFunction = do
                     return $ exit appOutput
 
             yampaSignalFunction :: SF AppInputEvent AppOutput
-            yampaSignalFunction = constant $ AppOutput (Output.rectangle_ (50, 50)) False
+            yampaSignalFunction = accumulateInput >>> GameLogic.game
+                    where 
+                        accumulateInput :: SF AppInputEvent AppInput
+                        accumulateInput = Yampa.accumHoldBy accumulateEvent initAppInput
 
-        reactimate yampaInitial yampaInput yampaOutput yampaSignalFunction
-
-
-getTimeDelta :: Fractional a => a -> MVar a -> IO a
-getTimeDelta currentTime timeMVar = (currentTime -) <$> swapMVar timeMVar currentTime
+        Yampa.reactimate yampaInitial yampaInput yampaOutput yampaSignalFunction
