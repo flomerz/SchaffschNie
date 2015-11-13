@@ -16,11 +16,11 @@ cabal-version:       >=1.22
 executable SchaffschNie
   main-is:             Main.hs
 
-  other-modules:       GameTypes
-                       , GameParser
-                       , GameReader
-                       , Output.Graphics
-                       , Output.Shapes
+--  other-modules:       GameTypes
+--                       , GameParser
+--                       , GameReader
+--                       , Output.Graphics
+--                       , Output.Shapes
   other-extensions:    Arrows
   build-depends:       base >=4.6 && <5.0
                        , data-default >=0.5

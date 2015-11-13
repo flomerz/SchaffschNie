@@ -29,10 +29,9 @@ parse payload = case payload of
 
 parseKey :: SDL.KeyboardEventData -> KeyEvent
 parseKey ev = case code of
-                SDL.Scancode1 -> Just KeySpace
-                SDL.Scancode1 -> Just Key1
-                SDL.Scancode1 -> Just Key2
-                SDL.Scancode1 -> Just Key3
-                _             -> Nothing
+                SDL.ScancodeSpace   -> Just KeySpace
+                SDL.Scancode1       -> Just Key1
+                SDL.Scancode2       -> Just Key2
+                SDL.Scancode3       -> Just Key3
+                _                   -> Nothing
         where code = SDL.keysymScancode $ SDL.keyboardEventKeysym ev
-

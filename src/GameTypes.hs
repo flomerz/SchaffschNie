@@ -9,7 +9,7 @@ data GameObjectType = Air
                     | Lava
                     deriving (Show, Eq)
 
-data GamePlayer = Player { pPosition :: (Double, Double)
+data GamePlayer = GamePlayer { pPosition :: (Double, Double)
                          } deriving (Show, Eq)
 
 data GameObject = GameObject { oPositionY               :: Int

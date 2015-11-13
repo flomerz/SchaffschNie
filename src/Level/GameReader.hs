@@ -1,4 +1,4 @@
-module GameReader
+module Level.GameReader
     ( read
     ) where
 
@@ -8,7 +8,7 @@ import Data.List
 import Data.List.Split
 
 import GameTypes
-import GameParser
+import Level.GameParser
 
 
 levelPath :: FilePath
