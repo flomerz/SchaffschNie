@@ -19,8 +19,8 @@ import AppTypes
 
 run :: IO ()
 run = do
-        graficsEnv@(_, renderer) <- Output.init (300,300) "Test"
-        startYampa (fmap Event Input.input) (Output.output renderer) Input.getTime
+        graficsEnv <- Output.init (300,300) "Test"
+        startYampa (fmap Event Input.input) (Output.output graficsEnv) Input.getTime
         Output.quit graficsEnv
 
 

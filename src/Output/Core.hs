@@ -2,8 +2,9 @@ module Output.Core
     ( init
     , quit
     , output
-    , module Output.Renderer
+    , module Output.Types
     , module Output.Shapes
+    , module Output.Renderer
     ) where
 
 import Prelude hiding (init)
@@ -15,12 +16,9 @@ import Linear (V2(..), V4(..))
 import qualified SDL
 import qualified Graphics.UI.SDL.TTF as Font
 
-import Output.Renderer
+import Output.Types
 import Output.Shapes
-
-
-type WindowDim = (Int, Int)
-type GraphicsEnv = (SDL.Window, SDL.Renderer)
+import Output.Renderer
 
 
 init :: WindowDim -> String -> IO GraphicsEnv
@@ -46,5 +44,5 @@ quit (window, renderer) = do
     Font.quit
     SDL.quit
 
-output :: SDL.Renderer -> RenderObject -> IO ()
-output renderer obj = render renderer obj >> SDL.present renderer
+output :: GraphicsEnv -> RenderObject -> IO ()
+output env@(_,renderer) obj = render env obj >> SDL.present renderer
