@@ -1,7 +1,5 @@
 module Output.Renderer (render) where
 
-import Prelude hiding (init)
-
 import Data.StateVar (($=))
 import Data.Colour.SRGB (toSRGB24, RGB(..))
 import Linear (V2(..), V4(..))
