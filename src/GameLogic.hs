@@ -14,7 +14,7 @@ game = gamesf $ scene_ [ rectangle_ (50, 50) & colour_ (sRGB24 0x1A 0xAF 0x5D)
                        ]
 
 gamesf :: RenderObject -> SF AppInput AppOutput
-gamesf objs = switch sf (\_ -> gamesf $ objs {objType = Multiple [head subObjs & pos_ (x, y)]})
+gamesf objs = switch sf (\_ -> gamesf $ objs {objType = Multiple [head subObjs & pos_ (x+10, y+10)]})
         where 
             sf = proc input -> do
                 let quit = inpQuit input
