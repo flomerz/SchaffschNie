@@ -1,4 +1,4 @@
-module Level.GameReader
+module Game.Level.Reader
     ( read
     ) where
 
@@ -7,15 +7,15 @@ import Prelude hiding (read)
 import Data.List
 import Data.List.Split
 
-import GameTypes
-import Level.GameParser
+import Game.Types
+import Game.Level.Parser
 
 
 levelPath :: FilePath
 levelPath = "res/lvls/"
 
-read :: Int -> IO GameWorld
-read lvl = fmap (parseGameWorld . transform) $ readFile (levelPath ++ "lvl" ++ (show lvl) ++ ".txt")
+read :: Int -> IO GameLevel
+read lvl = fmap (parseLevel . transform) $ readFile (levelPath ++ "lvl" ++ (show lvl) ++ ".txt")
 
 transform :: String -> [ObjectSignColumn]
 transform str = addPosition . transpose . reverse $ splitOn "\n" str

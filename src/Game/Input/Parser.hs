@@ -1,4 +1,4 @@
-module Input.Parser
+module Game.Input.Parser
     ( parse
     ) where
 
@@ -9,7 +9,7 @@ import Prelude hiding
 
 import qualified SDL
 
-import Input.Events
+import Game.Input.Events
 
 
 parse :: Maybe SDL.EventPayload -> InputEvent

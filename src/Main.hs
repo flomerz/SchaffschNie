@@ -1,6 +1,6 @@
 module Main where
 
-import qualified GameCore as Game
+import qualified Game.Core as Game
 
 
 main :: IO ()

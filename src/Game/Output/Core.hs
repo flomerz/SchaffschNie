@@ -1,10 +1,10 @@
-module Output.Core
+module Game.Output.Core
     ( init
     , quit
     , output
-    , module Output.Types
-    , module Output.Shapes
-    , module Output.Renderer
+    , module Game.Output.Types
+    , module Game.Output.Shapes
+    , module Game.Output.Renderer
     ) where
 
 import Prelude hiding (init)
@@ -16,9 +16,9 @@ import Linear (V2(..), V4(..))
 import qualified SDL
 import qualified Graphics.UI.SDL.TTF as Font
 
-import Output.Types
-import Output.Shapes
-import Output.Renderer
+import Game.Output.Types
+import Game.Output.Shapes
+import Game.Output.Renderer
 
 
 init :: WindowDim -> String -> IO GraphicsEnv
@@ -28,7 +28,7 @@ init (winWidth, winHeight) title = do
 
     let windowConf = SDL.defaultWindow { SDL.windowInitialSize = V2 (fromIntegral winWidth) (fromIntegral winHeight) }
     window <- SDL.createWindow (pack title) windowConf
-    
+
     SDL.showWindow window
 
     renderer <- SDL.createRenderer window (-1) SDL.defaultRenderer
@@ -45,4 +45,4 @@ quit (window, renderer) = do
     SDL.quit
 
 output :: GraphicsEnv -> RenderObject -> IO ()
-output env@(_,renderer) obj = render env obj >> SDL.present renderer
+output env@(_,renderer) obj = SDL.clear renderer >> render env obj >> SDL.present renderer

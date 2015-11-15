@@ -1,4 +1,4 @@
-module Output.Types where
+module Game.Output.Types where
 
 import qualified SDL
 

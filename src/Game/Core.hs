@@ -1,4 +1,4 @@
-module GameCore where
+module Game.Core where
 
 import Control.Monad
 import Control.Concurrent
@@ -10,17 +10,19 @@ import FRP.Yampa ( Event(..)
                  , (>>>)
                  )
 
-import qualified Input.Core as Input
-import qualified Output.Core as Output
+import Game.AppTypes
 
-import qualified GameLogic
-import AppTypes
+import qualified Game.Input.Core as Input
+import qualified Game.Output.Core as Output
+
+import qualified Game.Level.Reader as Level
+import qualified Game.Logic as Logic
 
 
 run :: IO ()
 run = do
         graficsEnv <- Output.init (300,300) "Test"
-        startYampa (fmap Event Input.input) (Output.output graficsEnv) Input.getTime
+        startYampa (Event <$> Input.input) (Output.output graficsEnv) Input.getTime
         Output.quit graficsEnv
 
 
@@ -28,8 +30,10 @@ startYampa :: (IO AppInputEvent)
             -> (Output.RenderObject -> IO ())
             -> IO Double
             -> IO ()
-startYampa inputFunction outputFunction timeFunction = do        
+startYampa inputFunction outputFunction timeFunction = do
         timeMVar <- newMVar =<< timeFunction
+
+        lvl <- Level.read 1
 
         let
             yampaInitial :: IO AppInputEvent
@@ -47,12 +51,12 @@ startYampa inputFunction outputFunction timeFunction = do
 
             yampaOutput :: Bool -> AppOutput -> IO Bool
             yampaOutput changed appOutput = do
-                    when changed $ outputFunction $ renderObject appOutput
-                    return $ exit appOutput
+                    when changed $ outputFunction $ outRenderObject appOutput
+                    return $ outExit appOutput
 
             yampaSignalFunction :: SF AppInputEvent AppOutput
-            yampaSignalFunction = accumulateInput >>> GameLogic.game
-                    where 
+            yampaSignalFunction = accumulateInput >>> Logic.gameLevel lvl
+                    where
                         accumulateInput :: SF AppInputEvent AppInput
                         accumulateInput = Yampa.accumHoldBy accumulateEvent initAppInput
 

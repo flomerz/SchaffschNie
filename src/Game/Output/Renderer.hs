@@ -1,4 +1,4 @@
-module Output.Renderer (render) where
+module Game.Output.Renderer (render) where
 
 import Data.StateVar (($=))
 import Data.Colour.SRGB (toSRGB24, RGB(..))
@@ -7,8 +7,8 @@ import Linear.Affine (Point(..))
 
 import qualified SDL
 
-import Output.Types
-import Output.Shapes
+import Game.Output.Types
+import Game.Output.Shapes
 
 
 render :: GraphicsEnv -> RenderObject -> IO ()
@@ -19,7 +19,7 @@ render env@(window, renderer) obj = setRenderAttrs >> renderShape
                 SDL.rendererDrawColor renderer $= V4 r g b maxBound
 
         renderShape = case obj of
-            RenderObject (Multiple objects) _ _ -> SDL.clear renderer >> mapM_ (render env) objects
+            RenderObject (Multiple objects) _ _ -> mapM_ (render env) objects
             RenderObject (Single shape) pos _ -> do
                 (px, py) <- getPosition <$> getWindowHeight
 

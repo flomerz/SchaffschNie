@@ -1,4 +1,4 @@
-module Input.Events where
+module Game.Input.Events where
 
 data InputEvent = Key KeyEvent
                 | Mouse MouseEvent

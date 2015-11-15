@@ -1,6 +1,6 @@
 -- Thanks to Konstantin Zudov
 
-module Output.Shapes
+module Game.Output.Shapes
     ( Shape(..)
     , ObjectType(..)
     , RenderObject(..)
@@ -11,6 +11,8 @@ module Output.Shapes
     , rectangle_
     , text_
     , pos_
+    , posX_
+    , posY_
     , colour_
     , Colour
     , sRGB24
@@ -71,6 +73,14 @@ type AttributeSetter = RenderObject -> RenderObject
 
 pos_ :: (Double, Double) -> AttributeSetter
 pos_ pos obj = obj { objPos = pos }
+
+posX_ :: Double -> AttributeSetter
+posX_ posX obj = obj { objPos = (posX, posY) }
+    where (_,posY) = objPos obj
+
+posY_ :: Double -> AttributeSetter
+posY_ posY obj = obj { objPos = (posX, posY) }
+    where (posX,_) = objPos obj
 
 colour_ :: Colour Double -> AttributeSetter
 colour_ colour obj = obj { objColour = colour }

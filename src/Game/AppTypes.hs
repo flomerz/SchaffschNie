@@ -1,9 +1,9 @@
-module AppTypes where
+module Game.AppTypes where
 
 import FRP.Yampa.Event
 
-import Output.Shapes
-import Input.Events
+import Game.Output.Shapes
+import Game.Input.Events
 
 
 -- TYPE DEFINITIONS
@@ -14,8 +14,8 @@ data AppInput = AppInput { inpMouse     :: MouseEvent
                          , inpQuit      :: Bool
                          }
 
-data AppOutput = AppOutput { renderObject   :: RenderObject
-                           , exit           :: Bool
+data AppOutput = AppOutput { outRenderObject   :: RenderObject
+                           , outExit           :: Bool
                            }
 
 

@@ -1,18 +1,18 @@
-module Input.Core
+module Game.Input.Core
     ( input
     , getTime
-    , module Input.Parser
-    , module Input.Events
+    , module Game.Input.Parser
+    , module Game.Input.Events
     ) where
 
 import qualified SDL
 
-import Input.Events
-import Input.Parser
+import Game.Input.Events
+import Game.Input.Parser
 
 
 input :: IO InputEvent
-input = do 
+input = do
         sdlEvent <- SDL.pollEvent
         return $ parse $ SDL.eventPayload <$> sdlEvent
 

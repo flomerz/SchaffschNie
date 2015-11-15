@@ -1,21 +1,18 @@
-module Level.GameParser 
-    ( parse
+module Game.Level.Parser
+    ( parseLevel
     , ObjectSignColumn
     ) where
 
-import GameTypes
+import Game.Types
 
 
 type ObjectSign = (Char, Int)
 type ObjectSignColumn = ([ObjectSign],Int)
 
 
-parse :: [ObjectSignColumn] -> GameWorld
-parse world = GameWorld { wPlayer          = initPlayer
-                        , wObjectColumns   = map parseSignColumn world
-                        }
+parseLevel :: [ObjectSignColumn] -> GameLevel
+parseLevel lvl = GameLevel { wObjectColumns = map parseSignColumn lvl }
         where parseSignColumn (signs, posX) = parseGameObjectColumn signs posX
-
 
 parseGameObject :: Char -> Int -> GameObject
 parseGameObject '.' = setPositionY $ initGameObjectAir
