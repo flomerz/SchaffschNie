@@ -30,10 +30,11 @@ instance GameRenderer GameObjectColumn where
 instance GameRenderer GameLevel where
     render (GameLevel objColumns) = scene_ $ map render objColumns
 
+--TODO: make readable
 instance GameRenderer GameData where
-    render (GameData gameLevels gameSession) = render $ currentLevelView
+    render (GameData gameLevels gameSession) = render $ GameLevel $ map (\col@(GameObjectColumn posX _) -> col {oPositionX= posX-floor currentPositionX}) currentLevelView
         where
             GameLevel currentLevelColumns = gameLevels !! (fromIntegral (gLevel gameSession) - 1)
-            currentLevelView = GameLevel $ filter (\column -> and [fromIntegral (oPositionX column) < currentPositionX + viewPort
-                                                                    , fromIntegral (oPositionX column) > currentPositionX]) currentLevelColumns
+            currentLevelView = filter (\column -> and [fromIntegral (oPositionX column) < currentPositionX + viewPort
+                                                                    , fromIntegral (oPositionX column) > currentPositionX -1]) currentLevelColumns
             currentPositionX = gPosX gameSession
