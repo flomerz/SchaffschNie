@@ -20,19 +20,25 @@ import qualified Game.Process.Core as Process
 
 run :: IO ()
 run = do
+        lvl <- Level.read 1
+
         graficsEnv <- Output.init (300,300) "Test"
-        startYampa (Event <$> Input.input) (Output.output graficsEnv) Input.getTime
+
+        startYampa (Event <$> Input.input)
+                   (Output.output graficsEnv)
+                   Input.getTime
+                   (Process.run lvl)
+
         Output.quit graficsEnv
 
 
-startYampa :: (IO AppInputEvent)
-            -> (Output.RenderObject -> IO ())
-            -> IO Double
+startYampa :: IO AppInputEvent                  -- input function
+            -> (Output.RenderObject -> IO ())   -- output function
+            -> IO Double                        -- time function
+            -> SF AppInputEvent AppOutput       -- process function
             -> IO ()
-startYampa inputFunction outputFunction timeFunction = do
+startYampa inputFunction outputFunction timeFunction processFunction = do
         timeMVar <- newMVar =<< timeFunction
-
-        lvl <- Level.read 1
 
         let
             yampaInitial :: IO AppInputEvent
@@ -40,20 +46,16 @@ startYampa inputFunction outputFunction timeFunction = do
 
             yampaInput :: Bool -> IO (DTime, Maybe AppInputEvent)
             yampaInput _canBlock = do
-                    currentTime <- timeFunction
-                    deltaTime <- getTimeDelta currentTime timeMVar
+                    deltaTime <- getTimeDelta timeMVar =<< timeFunction
                     appInputEvent <- inputFunction
                     return (deltaTime, Just appInputEvent)
                     where
-                        getTimeDelta :: Fractional a => a -> MVar a -> IO a
-                        getTimeDelta currentTime mVar = (currentTime -) <$> swapMVar mVar currentTime
+                        getTimeDelta :: Fractional a => MVar a -> a -> IO a
+                        getTimeDelta mVar currentTime = (currentTime -) <$> swapMVar mVar currentTime
 
             yampaOutput :: Bool -> AppOutput -> IO Bool
             yampaOutput changed appOutput = do
                     when changed $ outputFunction $ outRenderObject appOutput
                     return $ outExit appOutput
 
-            yampaSignalFunction :: SF AppInputEvent AppOutput
-            yampaSignalFunction = Process.run lvl
-
-        Yampa.reactimate yampaInitial yampaInput yampaOutput yampaSignalFunction
+        Yampa.reactimate yampaInitial yampaInput yampaOutput processFunction
