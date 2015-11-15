@@ -1,4 +1,4 @@
-module Game.Renderer where
+module Game.Process.Renderer where
 
 import Game.Types
 import Game.Output.Shapes

@@ -16,7 +16,7 @@ import qualified Game.Input.Core as Input
 import qualified Game.Output.Core as Output
 
 import qualified Game.Level.Reader as Level
-import qualified Game.Logic as Logic
+import qualified Game.Process.Logic as Logic
 
 
 run :: IO ()

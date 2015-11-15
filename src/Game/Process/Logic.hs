@@ -1,5 +1,5 @@
 {-# LANGUAGE Arrows            #-}
-module Game.Logic where
+module Game.Process.Logic where
 
 import FRP.Yampa
 
@@ -7,8 +7,7 @@ import Game.AppTypes
 import Game.Input.Events
 import Game.Output.Shapes
 import Game.Types
-import Game.Renderer as Renderer
-
+import qualified Game.Process.Renderer as Renderer
 
 
 gameLevel :: GameLevel -> SF AppInput AppOutput
