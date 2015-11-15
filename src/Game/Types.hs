@@ -26,6 +26,8 @@ data GameLevel = GameLevel { wObjectColumns     :: [GameObjectColumn]
 data GamePlayer = GamePlayer { pPosition :: (Double, Double)
                              } deriving (Show, Eq)
 
+type GameData = GameLevel
+
 
 -- TYPE INITIALIZERS
 instance Default GameObject where
