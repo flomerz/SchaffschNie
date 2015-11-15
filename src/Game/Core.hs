@@ -10,6 +10,7 @@ import FRP.Yampa ( Event(..)
                  )
 
 import Game.AppTypes
+import Game.Types
 
 import qualified Game.Input.Core as Input
 import qualified Game.Output.Core as Output
@@ -20,14 +21,15 @@ import qualified Game.Process.Core as Process
 
 run :: IO ()
 run = do
-        lvl <- Level.read 1
-
         graficsEnv <- Output.init (300,300) "Test"
+
+        lvl <- Level.read 1
+        let gameData = GameData [lvl] initGameSession
 
         startYampa (Event <$> Input.input)
                    (Output.output graficsEnv)
                    Input.getTime
-                   (Process.run lvl)
+                   (Process.run gameData)
 
         Output.quit graficsEnv
 

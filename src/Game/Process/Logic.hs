@@ -7,5 +7,5 @@ import Game.AppTypes
 import Game.Types
 
 
-game :: GameData -> SF AppInput GameLevel
+game :: GameData -> SF AppInput GameData
 game gameData = constant $ gameData

@@ -26,7 +26,14 @@ data GameLevel = GameLevel { wObjectColumns     :: [GameObjectColumn]
 data GamePlayer = GamePlayer { pPosition :: (Double, Double)
                              } deriving (Show, Eq)
 
-type GameData = GameLevel
+data GameSession = GameSession { gPlayer    :: GamePlayer
+                               , gLevel     :: Int
+                               , gPosX      :: Double
+                               }
+
+data GameData = GameData { gLevels      :: [GameLevel]
+                         , gSession     :: GameSession
+                         }
 
 
 -- TYPE INITIALIZERS
@@ -39,7 +46,10 @@ instance Default GameObject where
                      }
 
 initGamePlayer :: GamePlayer
-initGamePlayer = GamePlayer (0,1)
+initGamePlayer = GamePlayer (3,1)
+
+initGameSession :: GameSession
+initGameSession = GameSession initGamePlayer 1 20
 
 initGameObjectAir :: GameObject
 initGameObjectAir = def { oType             = Air

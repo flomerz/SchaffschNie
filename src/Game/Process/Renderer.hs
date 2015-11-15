@@ -7,6 +7,9 @@ import Game.Output.Shapes
 renderScale :: Double
 renderScale = 10
 
+viewPort :: Double
+viewPort = 25
+
 class GameRenderer a where
     render :: a -> RenderObject
 
@@ -26,3 +29,11 @@ instance GameRenderer GameObjectColumn where
 
 instance GameRenderer GameLevel where
     render (GameLevel objColumns) = scene_ $ map render objColumns
+
+instance GameRenderer GameData where
+    render (GameData gameLevels gameSession) = render $ currentLevelView
+        where
+            GameLevel currentLevelColumns = gameLevels !! (fromIntegral (gLevel gameSession) - 1)
+            currentLevelView = GameLevel $ filter (\column -> and [fromIntegral (oPositionX column) < currentPositionX + viewPort
+                                                                    , fromIntegral (oPositionX column) > currentPositionX]) currentLevelColumns
+            currentPositionX = gPosX gameSession
