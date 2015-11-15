@@ -26,9 +26,7 @@ initAppInput = AppInput { inpMouse  = Nothing
                         , inpQuit   = False
                         }
 
-accumulateEvent :: AppInput -> InputEvent -> AppInput
-accumulateEvent appInput inputEvent = case inputEvent of
-        Key keyEvent        -> appInput { inpKey = keyEvent }
-        Mouse mouseEvent    -> appInput { inpMouse = mouseEvent }
-        Quit                -> appInput { inpQuit = True }
-        NoInput             -> appInput
+initAppOutput :: AppOutput
+initAppOutput = AppOutput { outRenderObject     = error "no RenderObject defined"
+                          , outExit             = False
+                          }

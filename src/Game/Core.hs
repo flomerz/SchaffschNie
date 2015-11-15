@@ -8,11 +8,13 @@ import FRP.Yampa ( Event(..)
                  , DTime
                  , SF
                  , (>>>)
+                 , (&&&)
                  )
 
 import Game.AppTypes
 
 import qualified Game.Input.Core as Input
+import Game.Input.Events
 import qualified Game.Output.Core as Output
 
 import qualified Game.Level.Reader as Level
@@ -55,9 +57,20 @@ startYampa inputFunction outputFunction timeFunction = do
                     return $ outExit appOutput
 
             yampaSignalFunction :: SF AppInputEvent AppOutput
-            yampaSignalFunction = accumulateInput >>> Logic.gameLevel lvl
+            yampaSignalFunction = accumulateInput >>> Logic.gameLevel lvl &&& Yampa.identity >>> handleExit
                     where
                         accumulateInput :: SF AppInputEvent AppInput
                         accumulateInput = Yampa.accumHoldBy accumulateEvent initAppInput
+
+                        accumulateEvent :: AppInput -> InputEvent -> AppInput
+                        accumulateEvent appInput inputEvent = case inputEvent of
+                            Key keyEvent        -> appInput { inpKey = keyEvent }
+                            Mouse mouseEvent    -> appInput { inpMouse = mouseEvent }
+                            Quit                -> appInput { inpQuit = True }
+                            NoInput             -> appInput
+
+                        handleExit :: SF (AppOutput, AppInput) AppOutput
+                        handleExit = Yampa.arr (\(appOutput, appInput) -> appOutput { outExit = inpQuit appInput })
+
 
         Yampa.reactimate yampaInitial yampaInput yampaOutput yampaSignalFunction
