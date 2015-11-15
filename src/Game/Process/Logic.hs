@@ -8,6 +8,7 @@ import Game.Input.Events
 import Game.Output.Shapes
 import Game.Types
 import qualified Game.Process.Renderer as Renderer
+import Game.Process.Event
 
 
 gameLevel :: GameLevel -> SF AppInput AppOutput
@@ -40,11 +41,3 @@ gamesf objs = switch sf (\_ -> gamesf $ objs {objType = Multiple $ [head subObjs
             returnA -< (AppOutput objs quit, keyEvent)
         (x, y) = objPos $ head subObjs
         (Multiple subObjs) = objType objs
-
-keyPress :: SF AppInput (Event Key)
-keyPress = inpKey ^>> edgeJust
-
-keyPressed :: Key -> SF AppInput (Event ())
-keyPressed key = keyPress >>^ filterE (key ==) >>^ tagWith ()
-
-
