@@ -28,6 +28,12 @@ render env@(window, renderer) obj = setRenderAttrs >> renderShape
                         let (sx, sy) = (\(x,y) -> (floor x, floor $ -y)) size
                         let rectangle = Just . SDL.Rectangle (P $ mkv2 px py) $ mkv2 sx sy
                         SDL.fillRect renderer rectangle
+                    ImageRectangle file size -> do
+                        let (sx, sy) = (\(x,y) -> (floor x, floor y)) size
+                        let rectangle = Just . SDL.Rectangle (P $ mkv2 px (py-sy)) $ mkv2 sx sy
+                        imageSurface <- SDL.loadBMP file
+                        imageTexture <- SDL.createTextureFromSurface renderer imageSurface
+                        SDL.copy renderer imageTexture Nothing rectangle
 
                 where
                     getPosition winHeight = (\(x, y) -> (floor x, winHeight - floor y)) pos
