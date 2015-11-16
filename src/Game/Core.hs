@@ -18,10 +18,12 @@ import qualified Game.Output.Core as Output
 import qualified Game.Level.Reader as Level
 import qualified Game.Process.Core as Process
 
+windowSize = (800,600)
+windowTitle = "Schaffsch Nie"
 
 run :: IO ()
 run = do
-        graficsEnv <- Output.init (300,300) "Test"
+        graficsEnv <- Output.init windowSize windowTitle
 
         lvl <- Level.read 1
         let gameData = GameData [lvl] initGameSession
