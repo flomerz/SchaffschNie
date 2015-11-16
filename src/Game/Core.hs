@@ -18,7 +18,10 @@ import qualified Game.Output.Core as Output
 import qualified Game.Level.Reader as Level
 import qualified Game.Process.Core as Process
 
+windowSize :: (Int, Int)
 windowSize = (800,600)
+
+windowTitle :: String
 windowTitle = "Schaffsch Nie"
 
 run :: IO ()
