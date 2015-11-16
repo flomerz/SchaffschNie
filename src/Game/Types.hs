@@ -9,19 +9,18 @@ data GameObjectType = Air
                     | Lava
                     deriving (Show, Eq)
 
-data GameObject = GameObject { oPositionY               :: Int
+data GameObject = GameObject { oPositionY               :: Double
                              , oType                    :: GameObjectType
                              , oColliding               :: Bool
                              , oDrivable                :: Bool
                              , oAccelerationY           :: Double
                              } deriving (Show, Eq)
 
-data GameObjectColumn = GameObjectColumn { oPositionX   :: Int
+data GameObjectColumn = GameObjectColumn { oPositionX   :: Double
                                          , oObjects     :: [GameObject]
                                          } deriving (Show, Eq)
 
-data GameLevel = GameLevel { wObjectColumns     :: [GameObjectColumn]
-                           } deriving (Show, Eq)
+type GameLevel = [GameObjectColumn]
 
 data GamePlayer = GamePlayer { pPosition :: (Double, Double)
                              } deriving (Show, Eq)
@@ -49,7 +48,7 @@ initGamePlayer :: GamePlayer
 initGamePlayer = GamePlayer (3,1)
 
 initGameSession :: GameSession
-initGameSession = GameSession initGamePlayer 1 20
+initGameSession = GameSession initGamePlayer 1 0
 
 initGameObjectAir :: GameObject
 initGameObjectAir = def { oType             = Air
@@ -69,5 +68,5 @@ initGameObjectLava = def { oType            = Lava
 
 
 -- TYPE ATTRIBUT CHANGE FUNCTIONS
-setPositionY :: GameObject -> Int -> GameObject
+setPositionY :: GameObject -> Double -> GameObject
 setPositionY obj pos = obj { oPositionY = pos }

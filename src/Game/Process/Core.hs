@@ -12,7 +12,7 @@ import qualified Game.Process.Renderer as Renderer
 
 
 run :: GameData -> SF AppInputEvent AppOutput
-run gameData = accumulateInput >>> processLogic gameData &&& handleExit >>> reduceOutput
+run gameData = accumulateInput >>> processLogic gameData &&& handleExit >>^ reduceOutput
 
 accumulateInput :: SF AppInputEvent AppInput
 accumulateInput = accumHoldBy accumulateEvent initAppInput
@@ -30,7 +30,7 @@ processLogic gameData = Logic.game gameData >>> arr Renderer.render
 handleExit :: SF AppInput Bool
 handleExit = arr inpQuit
 
-reduceOutput :: SF (RenderObject, Bool) AppOutput
-reduceOutput = arr (\(renderObj, exit) -> initAppOutput { outRenderObject = renderObj
-                                                        , outExit         = exit
-                                                        })
+reduceOutput :: (RenderObject, Bool) -> AppOutput
+reduceOutput (renderObj, exit) = initAppOutput { outRenderObject = renderObj
+                                               , outExit         = exit
+                                               }

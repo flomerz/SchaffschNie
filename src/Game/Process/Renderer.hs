@@ -8,7 +8,7 @@ renderScale :: Double
 renderScale = 10
 
 viewPort :: Double
-viewPort = 25
+viewPort = 30
 
 class GameRenderer a where
     render :: a -> RenderObject
@@ -19,22 +19,19 @@ instance GameRenderer GameObject where
         Box -> shape & colour_ (sRGB24 0x00 0xFF 0x00)
         Lava -> shape & colour_ (sRGB24 0xFF 0x00 0x00)
         where
-            posY = renderScale * (fromIntegral $ oPositionY gameObject)
+            posY = renderScale * (oPositionY gameObject)
             gameObjectType = oType gameObject
             shape = rectangle_ (renderScale, renderScale) & posY_ posY
 
 instance GameRenderer GameObjectColumn where
     render (GameObjectColumn posX objs) = scene_ $ map renderObject objs
-        where renderObject obj = render obj & posX_ (renderScale * (fromIntegral posX))
+        where renderObject obj = render obj & posX_ (renderScale * posX)
 
-instance GameRenderer GameLevel where
-    render (GameLevel objColumns) = scene_ $ map render objColumns
-
---TODO: make readable
 instance GameRenderer GameData where
-    render (GameData gameLevels gameSession) = render $ GameLevel $ map (\col@(GameObjectColumn posX _) -> col {oPositionX= posX-floor currentPositionX}) currentLevelView
+    render (GameData gameLevels (GameSession _ curLvl curGamePosX)) = scene_ $ map renderColumn columns
         where
-            GameLevel currentLevelColumns = gameLevels !! (fromIntegral (gLevel gameSession) - 1)
-            currentLevelView = filter (\column -> and [fromIntegral (oPositionX column) < currentPositionX + viewPort
-                                                                    , fromIntegral (oPositionX column) > currentPositionX -1]) currentLevelColumns
-            currentPositionX = gPosX gameSession
+            renderColumn col@(GameObjectColumn posX _) = render $ col { oPositionX = posX - curGamePosX }
+            columns = filter columnCondition $ gameLevels !! (curLvl - 1)
+                where columnCondition column = and [ oPositionX column < curGamePosX + viewPort
+                                                   , oPositionX column > curGamePosX - 1
+                                                   ]
