@@ -19,7 +19,7 @@ import qualified Game.Level.Reader as Level
 import qualified Game.Process.Core as Process
 
 windowSize :: (Int, Int)
-windowSize = (800,600)
+windowSize = (1280, 768)
 
 windowTitle :: String
 windowTitle = "Schaffsch Nie"

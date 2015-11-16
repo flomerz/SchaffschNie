@@ -21,26 +21,29 @@ render env@(window, renderer) obj = setRenderAttrs >> renderShape
         renderShape = case obj of
             RenderObject (Multiple objects) _ _ -> mapM_ (render env) objects
             RenderObject (Single shape) pos _ -> do
-                (px, py) <- getPosition <$> getWindowHeight
+                position <- getPosition <$> getWindowHeight
 
                 case shape of
                     Rectangle size -> do
-                        let (sx, sy) = (\(x,y) -> (floor x, floor $ -y)) size
-                        let rectangle = Just . SDL.Rectangle (P $ mkv2 px py) $ mkv2 sx sy
-                        SDL.fillRect renderer rectangle
+                        SDL.fillRect renderer $ Just $ createRectangle position $ floorT size
+
                     ImageRectangle file size -> do
-                        let (sx, sy) = (\(x,y) -> (floor x, floor y)) size
-                        let rectangle = Just . SDL.Rectangle (P $ mkv2 px (py-sy)) $ mkv2 sx sy
                         imageSurface <- SDL.loadBMP file
                         imageTexture <- SDL.createTextureFromSurface renderer imageSurface
-                        SDL.copy renderer imageTexture Nothing rectangle
+                        SDL.copy renderer imageTexture Nothing $ Just $ createRectangle position $ floorT size
 
                 where
-                    getPosition winHeight = (\(x, y) -> (floor x, winHeight - floor y)) pos
+                    createRectangle (px, py) (sx, sy) = SDL.Rectangle (P $ mkv2 px (py-sy)) $ mkv2 sx sy
+
+                    getPosition winHeight = (\(x, y) -> (x, winHeight - y)) $ floorT pos
 
                     getWindowHeight = do
                         winConf <- SDL.getWindowConfig window
                         return $ (\(V2 _ y) -> fromIntegral y) $ SDL.windowInitialSize winConf
+
+
+floorT :: (Double, Double) -> (Int, Int)
+floorT (a1, a2) = (floor a1, floor a2)
 
 
 mkv2 :: Enum a => Int -> Int -> V2 a

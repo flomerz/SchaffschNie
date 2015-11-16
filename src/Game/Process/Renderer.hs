@@ -8,20 +8,21 @@ renderScale :: Double
 renderScale = 32
 
 viewPort :: Double
-viewPort = 30
+viewPort = 40
 
 class GameRenderer a where
     render :: a -> RenderObject
 
 instance GameRenderer GameObject where
     render gameObject = case gameObjectType of
-        Air -> shape & colour_ (sRGB24 0x00 0x00 0xFF)
-        Box -> image_ "res/imgs/box.bmp" (renderScale, renderScale) & posY_ posY
-        Lava -> shape & colour_ (sRGB24 0xFF 0x00 0x00)
+        Air -> shape & colour_ (sRGB24 0x89 0xDE 0xFA)
+        Box -> image "res/imgs/box.bmp"
+        Lava -> image "res/imgs/lava.bmp"
         where
             posY = renderScale * (oPositionY gameObject)
             gameObjectType = oType gameObject
             shape = rectangle_ (renderScale, renderScale) & posY_ posY
+            image file = image_ file (renderScale, renderScale) & posY_ posY
 
 instance GameRenderer GameObjectColumn where
     render (GameObjectColumn posX objs) = scene_ $ map renderObject objs
