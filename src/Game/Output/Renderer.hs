@@ -1,5 +1,6 @@
 module Game.Output.Renderer (render) where
 
+import System.IO.Unsafe (unsafePerformIO)
 import Data.StateVar (($=))
 import Data.Colour.SRGB (toSRGB24, RGB(..))
 import Linear (V2(..), V4(..))
@@ -25,15 +26,18 @@ render env@(window, renderer) obj = setRenderAttrs >> renderShape
 
                 case shape of
                     Rectangle size -> do
-                        SDL.fillRect renderer $ Just $ createRectangle position $ floorT size
+                        SDL.fillRect renderer $ createRectangle position $ floorT size
 
-                    ImageRectangle file size -> do
+                    ImageRectangle file size stripe -> do
                         imageSurface <- SDL.loadBMP file
                         imageTexture <- SDL.createTextureFromSurface renderer imageSurface
-                        SDL.copy renderer imageTexture Nothing $ Just $ createRectangle position $ floorT size
+                        let stripeRectange = case stripe of
+                                Just (sx, sy) -> Just $ SDL.Rectangle (P $ mkv2 0 0) $ mkv2 (floor sx) (floor sy)
+                                _ -> Nothing
+                        SDL.copy renderer imageTexture stripeRectange (createRectangle position $ floorT size)
 
                 where
-                    createRectangle (px, py) (sx, sy) = SDL.Rectangle (P $ mkv2 px (py-sy)) $ mkv2 sx sy
+                    createRectangle (px, py) (sx, sy) = Just $ SDL.Rectangle (P $ mkv2 px (py-sy)) $ mkv2 sx sy
 
                     getPosition winHeight = (\(x, y) -> (x, winHeight - y)) $ floorT pos
 

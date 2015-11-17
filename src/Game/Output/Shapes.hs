@@ -30,7 +30,7 @@ data Shape = Circle Int
            | Rectangle (Double, Double)
            | Line Int Double
            | TextRectangle Int Int String
-           | ImageRectangle FilePath (Double, Double)
+           | ImageRectangle FilePath (Double, Double) (Maybe (Double, Double))
            deriving (Show, Eq)
 
 data ObjectType = Single { objShape :: Shape }
@@ -65,8 +65,8 @@ circle_ n = def { objType = Single $ Circle (round n) }
 rectangle_ :: (Double, Double) -> RenderObject
 rectangle_ size = def { objType = Single $ Rectangle size }
 
-image_ :: FilePath -> (Double, Double) -> RenderObject
-image_ file size = def { objType = Single $ ImageRectangle file size }
+image_ :: FilePath -> (Double, Double) -> Maybe (Double, Double) -> RenderObject
+image_ file size stripe = def { objType = Single $ ImageRectangle file size stripe }
 
 line_ :: Int -> Double -> RenderObject
 line_ length_ angle = def { objType = Single $ Line length_ angle }
