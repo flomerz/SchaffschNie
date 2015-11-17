@@ -55,7 +55,7 @@ startYampa inputFunction outputFunction timeFunction processFunction = do
             yampaInput _canBlock = do
                     deltaTime <- getTimeDelta timeMVar =<< timeFunction
                     appInputEvent <- inputFunction
-                    return (deltaTime, Just appInputEvent)
+                    return (0.1, Just appInputEvent)
                     where
                         getTimeDelta :: Fractional a => MVar a -> a -> IO a
                         getTimeDelta mVar currentTime = (currentTime -) <$> swapMVar mVar currentTime
