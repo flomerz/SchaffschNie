@@ -35,6 +35,8 @@ render env@(window, renderer) obj = setRenderAttrs >> renderShape
                                 Just (sx, sy)   -> Just $ SDL.Rectangle (P $ mkv2 0 0) $ mkv2 (floor sx) (floor sy)
                                 _               -> Nothing
                         SDL.copy renderer imageTexture stripeRectange (createRectangle position $ toupleF floor size)
+                        SDL.destroyTexture imageTexture
+                        SDL.freeSurface imageSurface
 
                 where
                     createRectangle (px, py) (sx, sy) = Just $ SDL.Rectangle (P $ mkv2 px (py-sy)) $ mkv2 sx sy
