@@ -32,11 +32,15 @@ data ImageType = PlayerImage
                | LavaImage
                deriving (Show, Eq)
 
+type ShapeSize = (Double, Double)
+type ShapePosition = (Double, Double)
+type ShapeSprite = Maybe (ShapePosition, ShapeSize)
+
 data Shape = Circle Int
-           | Rectangle (Double, Double)
+           | Rectangle ShapeSize
            | Line Int Double
            | TextRectangle Int Int String
-           | Image ImageType (Double, Double) (Maybe (Double, Double))
+           | Image ImageType ShapeSize ShapeSprite
            deriving (Show, Eq)
 
 data ObjectType = Single { objShape :: Shape }
@@ -44,7 +48,7 @@ data ObjectType = Single { objShape :: Shape }
                 deriving (Show, Eq)
 
 data RenderObject = RenderObject { objType      :: ObjectType
-                                 , objPos       :: (Double, Double)
+                                 , objPos       :: ShapePosition
                                  , objColour    :: Colour Double
                                  } deriving (Show, Eq)
 
@@ -68,10 +72,10 @@ scene_ objs = def { objType = Multiple objs, objColour = black}
 circle_ :: Double -> RenderObject
 circle_ n = def { objType = Single $ Circle (round n) }
 
-rectangle_ :: (Double, Double) -> RenderObject
+rectangle_ :: ShapeSize -> RenderObject
 rectangle_ size = def { objType = Single $ Rectangle size }
 
-image_ :: ImageType -> (Double, Double) -> Maybe (Double, Double) -> RenderObject
+image_ :: ImageType -> ShapeSize -> ShapeSprite -> RenderObject
 image_ imgType size stripe = def { objType = Single $ Image imgType size stripe }
 
 line_ :: Int -> Double -> RenderObject
@@ -82,7 +86,7 @@ text_ x y txt = def { objType = Single $ TextRectangle (round x) (round y) txt }
 
 type AttributeSetter = RenderObject -> RenderObject
 
-pos_ :: (Double, Double) -> AttributeSetter
+pos_ :: ShapePosition -> AttributeSetter
 pos_ pos obj = obj { objPos = pos }
 
 posX_ :: Double -> AttributeSetter

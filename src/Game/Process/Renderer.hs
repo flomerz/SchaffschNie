@@ -28,7 +28,7 @@ instance GameRenderer GameObjectColumn where
 instance GameRenderer GameData where
     render resSettings@(windowSize, renderScale) (GameData gameLevels (GameSession player curLvl curGamePosX)) = scene_ $ levelShape ++ [playerShape]
         where
-            playerShape = image_ PlayerImage (renderScale, renderScale) (Just (255, 288)) & pos_ (toupleF (* renderScale) $ pPosition player)
+            playerShape = image_ PlayerImage (renderScale, renderScale) (Just ((0, 0), (255, 288))) & pos_ (toupleF (* renderScale) $ pPosition player)
             levelShape = map renderColumn columns
             renderColumn col@(GameObjectColumn posX _) = render resSettings $ col { oPositionX = posX - curGamePosX }
             columns = filter columnCondition $ gameLevels !! (curLvl - 1)

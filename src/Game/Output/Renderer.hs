@@ -7,13 +7,12 @@ import Linear.Affine (Point(..))
 
 import qualified SDL
 
-import Game.Util
 import Game.Output.Types
 import Game.Output.Shapes
 
 
 render :: GraphicsEnv -> RenderObject -> IO ()
-render env@(windowSize, _, renderer, graphicImages) obj = setRenderAttrs >> renderShape
+render env@((_, winY), _, renderer, graphicImages) obj = setRenderAttrs >> renderShape
     where
         setRenderAttrs = do
                 let (RGB r g b) = toSRGB24 $ objColour obj
@@ -22,11 +21,9 @@ render env@(windowSize, _, renderer, graphicImages) obj = setRenderAttrs >> rend
         renderShape = case obj of
             RenderObject (Multiple objects) _ _ -> mapM_ (render env) objects
             RenderObject (Single shape) pos _ -> do
-                let position = getPosition winY
-
                 case shape of
                     Rectangle size -> do
-                        SDL.fillRect renderer $ createRectangle position $ toupleF floor size
+                        SDL.fillRect renderer $ createRectangle $ reflect (pos, size)
 
                     Image imgType size stripe -> do
                         let imageTexture = case imgType of
@@ -35,17 +32,15 @@ render env@(windowSize, _, renderer, graphicImages) obj = setRenderAttrs >> rend
                                 LavaImage       -> fst $ imageLava graphicImages
                                 _               -> fst $ imageAir graphicImages
                         let stripeRectange = case stripe of
-                                Just (sx, sy)   -> Just $ SDL.Rectangle (P $ mkv2 0 0) $ mkv2 (floor sx) (floor sy)
+                                Just stripeData -> createRectangle stripeData
                                 _               -> Nothing
-                        SDL.copy renderer imageTexture stripeRectange (createRectangle position $ toupleF floor size)
+                        SDL.copy renderer imageTexture stripeRectange (createRectangle $ reflect (pos, size))
 
                 where
-                    createRectangle (px, py) (sx, sy) = Just $ SDL.Rectangle (P $ mkv2 px (py-sy)) $ mkv2 sx sy
+                    createRectangle ((px, py), (sx, sy)) = Just $ SDL.Rectangle (P $ mkv2 px py) $ mkv2 sx sy
 
-                    getPosition winHeight = (\(x, y) -> (x, winHeight - y)) $ toupleF floor pos
+                    reflect :: ((Double, Double), (Double, Double)) -> ((Double, Double), (Double, Double))
+                    reflect ((px, py), (sx, sy)) = ((px, ((fromIntegral winY) - py - sy)), (sx, sy))
 
-                    winY = snd windowSize
-
-
-mkv2 :: Enum a => Int -> Int -> V2 a
-mkv2 x y = (V2 (toEnum x) (toEnum y))
+                    mkv2 :: Enum a => Double -> Double -> V2 a
+                    mkv2 x y = (V2 (toEnum $ floor x) (toEnum $ floor y))
