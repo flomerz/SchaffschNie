@@ -13,7 +13,7 @@ import Game.Output.Shapes
 
 
 render :: GraphicsEnv -> RenderObject -> IO ()
-render env@(windowSize, _, renderer) obj = setRenderAttrs >> renderShape
+render env@(windowSize, _, renderer, graphicImages) obj = setRenderAttrs >> renderShape
     where
         setRenderAttrs = do
                 let (RGB r g b) = toSRGB24 $ objColour obj
@@ -28,15 +28,16 @@ render env@(windowSize, _, renderer) obj = setRenderAttrs >> renderShape
                     Rectangle size -> do
                         SDL.fillRect renderer $ createRectangle position $ toupleF floor size
 
-                    ImageRectangle file size stripe -> do
-                        imageSurface <- SDL.loadBMP file
-                        imageTexture <- SDL.createTextureFromSurface renderer imageSurface
+                    Image imgType size stripe -> do
+                        let imageTexture = case imgType of
+                                PlayerImage     -> fst $ imagePlayer graphicImages
+                                BoxImage        -> fst $ imageBox graphicImages
+                                LavaImage       -> fst $ imageLava graphicImages
+                                _               -> fst $ imageAir graphicImages
                         let stripeRectange = case stripe of
                                 Just (sx, sy)   -> Just $ SDL.Rectangle (P $ mkv2 0 0) $ mkv2 (floor sx) (floor sy)
                                 _               -> Nothing
                         SDL.copy renderer imageTexture stripeRectange (createRectangle position $ toupleF floor size)
-                        SDL.destroyTexture imageTexture
-                        SDL.freeSurface imageSurface
 
                 where
                     createRectangle (px, py) (sx, sy) = Just $ SDL.Rectangle (P $ mkv2 px (py-sy)) $ mkv2 sx sy

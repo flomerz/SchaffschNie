@@ -2,6 +2,7 @@
 
 module Game.Output.Shapes
     ( Shape(..)
+    , ImageType(..)
     , ObjectType(..)
     , RenderObject(..)
     , def
@@ -25,12 +26,17 @@ import Data.Colour
 import Data.Colour.SRGB
 import Data.Colour.Names
 
+data ImageType = PlayerImage
+               | AirImage
+               | BoxImage
+               | LavaImage
+               deriving (Show, Eq)
 
 data Shape = Circle Int
            | Rectangle (Double, Double)
            | Line Int Double
            | TextRectangle Int Int String
-           | ImageRectangle FilePath (Double, Double) (Maybe (Double, Double))
+           | Image ImageType (Double, Double) (Maybe (Double, Double))
            deriving (Show, Eq)
 
 data ObjectType = Single { objShape :: Shape }
@@ -65,8 +71,8 @@ circle_ n = def { objType = Single $ Circle (round n) }
 rectangle_ :: (Double, Double) -> RenderObject
 rectangle_ size = def { objType = Single $ Rectangle size }
 
-image_ :: FilePath -> (Double, Double) -> Maybe (Double, Double) -> RenderObject
-image_ file size stripe = def { objType = Single $ ImageRectangle file size stripe }
+image_ :: ImageType -> (Double, Double) -> Maybe (Double, Double) -> RenderObject
+image_ imgType size stripe = def { objType = Single $ Image imgType size stripe }
 
 line_ :: Int -> Double -> RenderObject
 line_ length_ angle = def { objType = Single $ Line length_ angle }

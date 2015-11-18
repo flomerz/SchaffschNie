@@ -35,15 +35,42 @@ init winSize@(winWidth, winHeight) title = do
     renderer <- SDL.createRenderer window (-1) SDL.defaultRenderer
     SDL.rendererDrawColor renderer $= V4 maxBound maxBound maxBound 0
 
-    return (winSize, window, renderer)
+    graphicImages <- loadImages renderer
+
+    return (winSize, window, renderer, graphicImages)
+
+    where
+        loadImages :: SDL.Renderer -> IO GraphicImages
+        loadImages renderer = do
+            imgPlayer <- loadImage "res/imgs/player.bmp"
+            imgAir    <- loadImage "res/imgs/box.bmp"
+            imgBox    <- loadImage "res/imgs/box.bmp"
+            imgLava   <- loadImage "res/imgs/lava.bmp"
+            return $ GraphicImages imgPlayer imgAir imgBox imgLava
+            where loadImage file = do
+                    imageSurface <- SDL.loadBMP file
+                    imageTexture <- SDL.createTextureFromSurface renderer imageSurface
+                    return (imageTexture, imageSurface)
 
 
 quit :: GraphicsEnv -> IO ()
-quit (_, window, renderer) = do
+quit (_, window, renderer, graphicImages) = do
+    destroyImages graphicImages
     SDL.destroyRenderer renderer
     SDL.destroyWindow window
     Font.quit
     SDL.quit
+    where
+        destroyImages :: GraphicImages -> IO ()
+        destroyImages (GraphicImages imgPlayer imgAir imgBox imgLava) = do
+            destroyImage imgPlayer
+            destroyImage imgAir
+            destroyImage imgBox
+            destroyImage imgLava
+            where destroyImage (imageTexture, imageSurface) = do
+                    SDL.destroyTexture imageTexture
+                    SDL.freeSurface imageSurface
+
 
 output :: GraphicsEnv -> RenderObject -> IO ()
-output env@(_, _, renderer) obj = SDL.clear renderer >> render env obj >> SDL.present renderer
+output env@(_, _, renderer, _) obj = SDL.clear renderer >> render env obj >> SDL.present renderer
