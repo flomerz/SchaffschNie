@@ -32,8 +32,8 @@ render env@(window, renderer) obj = setRenderAttrs >> renderShape
                         imageSurface <- SDL.loadBMP file
                         imageTexture <- SDL.createTextureFromSurface renderer imageSurface
                         let stripeRectange = case stripe of
-                                Just (sx, sy) -> Just $ SDL.Rectangle (P $ mkv2 0 0) $ mkv2 (floor sx) (floor sy)
-                                _ -> Nothing
+                                Just (sx, sy)   -> Just $ SDL.Rectangle (P $ mkv2 0 0) $ mkv2 (floor sx) (floor sy)
+                                _               -> Nothing
                         SDL.copy renderer imageTexture stripeRectange (createRectangle position $ toupleF floor size)
 
                 where
