@@ -2,6 +2,7 @@ module Game.Output.Types where
 
 import qualified SDL
 
+import Game.AppTypes (WindowSize)
 
-type WindowDim = (Int, Int)
-type GraphicsEnv = (SDL.Window, SDL.Renderer)
+
+type GraphicsEnv = (WindowSize, SDL.Window, SDL.Renderer)

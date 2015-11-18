@@ -11,7 +11,7 @@ import qualified Game.Process.Logic as Logic
 import qualified Game.Process.Renderer as Renderer
 
 
-run :: Renderer.ResolutionSettings -> GameData -> SF AppInputEvent AppOutput
+run :: ResolutionSettings -> GameData -> SF AppInputEvent AppOutput
 run resSettings gameData = accumulateInput >>> (Logic.game gameData >>> arr (Renderer.render resSettings)) &&& handleExit >>^ reduceOutput
 
 accumulateInput :: SF AppInputEvent AppInput

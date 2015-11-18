@@ -16,13 +16,14 @@ import Linear (V2(..), V4(..))
 import qualified SDL
 import qualified Graphics.UI.SDL.TTF as Font
 
+import Game.AppTypes (WindowSize)
 import Game.Output.Types
 import Game.Output.Shapes
 import Game.Output.Renderer
 
 
-init :: WindowDim -> String -> IO GraphicsEnv
-init (winWidth, winHeight) title = do
+init :: WindowSize -> String -> IO GraphicsEnv
+init winSize@(winWidth, winHeight) title = do
     SDL.initialize [SDL.InitVideo]
     Font.init
 
@@ -34,15 +35,15 @@ init (winWidth, winHeight) title = do
     renderer <- SDL.createRenderer window (-1) SDL.defaultRenderer
     SDL.rendererDrawColor renderer $= V4 maxBound maxBound maxBound 0
 
-    return (window, renderer)
+    return (winSize, window, renderer)
 
 
 quit :: GraphicsEnv -> IO ()
-quit (window, renderer) = do
+quit (_, window, renderer) = do
     SDL.destroyRenderer renderer
     SDL.destroyWindow window
     Font.quit
     SDL.quit
 
 output :: GraphicsEnv -> RenderObject -> IO ()
-output env@(_,renderer) obj = SDL.clear renderer >> render env obj >> SDL.present renderer
+output env@(_, _, renderer) obj = SDL.clear renderer >> render env obj >> SDL.present renderer

@@ -7,6 +7,10 @@ import Game.Input.Events
 
 
 -- TYPE DEFINITIONS
+type RenderScale = Double
+type WindowSize = (Int, Int)
+type ResolutionSettings = (WindowSize, RenderScale)
+
 type AppInputEvent = Event InputEvent
 
 data AppInput = AppInput { inpMouse     :: MouseEvent

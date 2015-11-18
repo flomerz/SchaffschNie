@@ -13,7 +13,7 @@ import Game.Output.Shapes
 
 
 render :: GraphicsEnv -> RenderObject -> IO ()
-render env@(window, renderer) obj = setRenderAttrs >> renderShape
+render env@(windowSize, _, renderer) obj = setRenderAttrs >> renderShape
     where
         setRenderAttrs = do
                 let (RGB r g b) = toSRGB24 $ objColour obj
@@ -22,7 +22,7 @@ render env@(window, renderer) obj = setRenderAttrs >> renderShape
         renderShape = case obj of
             RenderObject (Multiple objects) _ _ -> mapM_ (render env) objects
             RenderObject (Single shape) pos _ -> do
-                position <- getPosition <$> getWindowHeight
+                let position = getPosition winY
 
                 case shape of
                     Rectangle size -> do
@@ -43,9 +43,7 @@ render env@(window, renderer) obj = setRenderAttrs >> renderShape
 
                     getPosition winHeight = (\(x, y) -> (x, winHeight - y)) $ toupleF floor pos
 
-                    getWindowHeight = do
-                        winConf <- SDL.getWindowConfig window
-                        return $ (\(V2 _ y) -> fromIntegral y) $ SDL.windowInitialSize winConf
+                    winY = snd windowSize
 
 
 mkv2 :: Enum a => Int -> Int -> V2 a

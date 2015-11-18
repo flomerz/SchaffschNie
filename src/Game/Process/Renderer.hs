@@ -1,14 +1,10 @@
 module Game.Process.Renderer where
 
+import Game.AppTypes (ResolutionSettings)
 import Game.Types
 import Game.Output.Shapes
 
 import Game.Util
-
-
-type RenderScale = Double
-type WindowSize = (Int, Int)
-type ResolutionSettings = (WindowSize, RenderScale)
 
 
 class GameRenderer a where
