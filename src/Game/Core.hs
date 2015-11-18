@@ -37,8 +37,11 @@ run = do
         lvl <- Level.read 1
         let gameData = GameData [lvl] initGameSession
 
+        fpsCounter <- newMVar (0::Integer)
+        fpsLastTicks <- newMVar (0::Integer)
+
         startYampa (Event <$> Input.input)
-                   (Output.output graficsEnv)
+                   (Output.output (fpsCounter, fpsLastTicks) graficsEnv)
                    Input.getTime
                    (Process.run (windowSize, renderScale) gameData)
 

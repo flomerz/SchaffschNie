@@ -9,6 +9,8 @@ module Game.Output.Core
 
 import Prelude hiding (init)
 
+import Control.Monad
+import Control.Concurrent
 import Data.Text (pack)
 import Data.StateVar (($=))
 import Linear (V2(..), V4(..))
@@ -72,5 +74,13 @@ quit (_, window, renderer, graphicImages) = do
                     SDL.freeSurface imageSurface
 
 
-output :: GraphicsEnv -> RenderObject -> IO ()
-output env@(_, _, renderer, _) obj = SDL.clear renderer >> render env obj >> SDL.present renderer
+output :: (MVar Integer, MVar Integer) -> GraphicsEnv -> RenderObject -> IO ()
+output (fpsCounter, fpsLastTicks) env@(_, _, renderer, _) obj = SDL.clear renderer >> render env obj >> SDL.present renderer >> measureFPS
+    where measureFPS = do
+            ticks <- SDL.ticks
+            lastTicks <- readMVar fpsLastTicks
+            modifyMVar_ fpsCounter (return . succ)
+            when ((lastTicks + 1000) < (fromIntegral ticks)) $ do
+                swapMVar fpsLastTicks $ fromIntegral ticks
+                curFps <- swapMVar fpsCounter (0::Integer)
+                putStrLn $ "FPS: " ++ show curFps
