@@ -15,20 +15,15 @@ class GameRenderer a where
     render :: ResolutionSettings -> a -> RenderObject
 
 instance GameRenderer GameObject where
-    render (_, renderScale) gameObject = renderSimple
+    render (_, renderScale) gameObject = shape
         where
-            renderSimple = case gameObjectType of
-                Air -> shape & colour_ (sRGB24 0x89 0xDE 0xFA)
-                Box -> shape & colour_ (sRGB24 0xAB 0x67 0x09)
-                Lava -> shape & colour_ (sRGB24 0xFF 0x00 0x00)
-            -- renderImage = case gameObjectType of
-            --     Air -> shape & colour_ (sRGB24 0x89 0xDE 0xFA)
-            --     Box -> image "res/imgs/box.bmp"
-            --     Lava -> image "res/imgs/lava.bmp"
-            -- image file = image_ file (renderScale, renderScale) Nothing & posY_ posY
+            shape = case (oType gameObject) of
+                Air -> rect & colour_ (sRGB24 0x89 0xDE 0xFA)
+                Box -> image "res/imgs/box.bmp"
+                Lava -> image "res/imgs/lava.bmp"
             posY = renderScale * (oPositionY gameObject)
-            gameObjectType = oType gameObject
-            shape = rectangle_ (renderScale, renderScale) & posY_ posY
+            image file = image_ file (renderScale, renderScale) Nothing & posY_ posY
+            rect = rectangle_ (renderScale, renderScale) & posY_ posY
 
 instance GameRenderer GameObjectColumn where
     render resSettings@(_, renderScale) (GameObjectColumn posX objs) = scene_ $ map renderObject objs
