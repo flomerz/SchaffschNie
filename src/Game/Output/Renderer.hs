@@ -7,6 +7,7 @@ import Linear.Affine (Point(..))
 
 import qualified SDL
 
+import Game.Util
 import Game.Output.Types
 import Game.Output.Shapes
 
@@ -25,7 +26,7 @@ render env@(window, renderer) obj = setRenderAttrs >> renderShape
 
                 case shape of
                     Rectangle size -> do
-                        SDL.fillRect renderer $ createRectangle position $ floorT size
+                        SDL.fillRect renderer $ createRectangle position $ toupleF floor size
 
                     ImageRectangle file size stripe -> do
                         imageSurface <- SDL.loadBMP file
@@ -33,20 +34,16 @@ render env@(window, renderer) obj = setRenderAttrs >> renderShape
                         let stripeRectange = case stripe of
                                 Just (sx, sy) -> Just $ SDL.Rectangle (P $ mkv2 0 0) $ mkv2 (floor sx) (floor sy)
                                 _ -> Nothing
-                        SDL.copy renderer imageTexture stripeRectange (createRectangle position $ floorT size)
+                        SDL.copy renderer imageTexture stripeRectange (createRectangle position $ toupleF floor size)
 
                 where
                     createRectangle (px, py) (sx, sy) = Just $ SDL.Rectangle (P $ mkv2 px (py-sy)) $ mkv2 sx sy
 
-                    getPosition winHeight = (\(x, y) -> (x, winHeight - y)) $ floorT pos
+                    getPosition winHeight = (\(x, y) -> (x, winHeight - y)) $ toupleF floor pos
 
                     getWindowHeight = do
                         winConf <- SDL.getWindowConfig window
                         return $ (\(V2 _ y) -> fromIntegral y) $ SDL.windowInitialSize winConf
-
-
-floorT :: (Double, Double) -> (Int, Int)
-floorT (a1, a2) = (floor a1, floor a2)
 
 
 mkv2 :: Enum a => Int -> Int -> V2 a
