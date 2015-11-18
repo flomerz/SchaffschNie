@@ -11,8 +11,8 @@ import qualified Game.Process.Logic as Logic
 import qualified Game.Process.Renderer as Renderer
 
 
-run :: GameData -> SF AppInputEvent AppOutput
-run gameData = accumulateInput >>> processLogic gameData &&& handleExit >>^ reduceOutput
+run :: Renderer.ResolutionSettings -> GameData -> SF AppInputEvent AppOutput
+run resSettings gameData = accumulateInput >>> (Logic.game gameData >>> arr (Renderer.render resSettings)) &&& handleExit >>^ reduceOutput
 
 accumulateInput :: SF AppInputEvent AppInput
 accumulateInput = accumHoldBy accumulateEvent initAppInput
@@ -23,9 +23,6 @@ accumulateEvent appInput inputEvent = case inputEvent of
     Mouse mouseEvent    -> appInput { inpMouse = mouseEvent }
     Quit                -> appInput { inpQuit = True }
     NoInput             -> appInput
-
-processLogic :: GameData -> SF AppInput RenderObject
-processLogic gameData = Logic.game gameData >>> arr Renderer.render
 
 handleExit :: SF AppInput Bool
 handleExit = arr inpQuit

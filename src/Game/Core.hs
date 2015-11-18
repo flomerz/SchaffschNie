@@ -18,11 +18,17 @@ import qualified Game.Output.Core as Output
 import qualified Game.Level.Reader as Level
 import qualified Game.Process.Core as Process
 
+
 windowSize :: (Int, Int)
-windowSize = (1280, 768)
+windowSize = (1024, 640)
+-- windowSize = (1280, 768)
+
+renderScale :: Double
+renderScale = 32
 
 windowTitle :: String
 windowTitle = "Schaffsch Nie"
+
 
 run :: IO ()
 run = do
@@ -34,7 +40,7 @@ run = do
         startYampa (Event <$> Input.input)
                    (Output.output graficsEnv)
                    Input.getTime
-                   (Process.run gameData)
+                   (Process.run (windowSize, renderScale) gameData)
 
         Output.quit graficsEnv
 
@@ -55,7 +61,7 @@ startYampa inputFunction outputFunction timeFunction processFunction = do
             yampaInput _canBlock = do
                     deltaTime <- getTimeDelta timeMVar =<< timeFunction
                     appInputEvent <- inputFunction
-                    return (0.1, Just appInputEvent)
+                    return (deltaTime, Just appInputEvent)
                     where
                         getTimeDelta :: Fractional a => MVar a -> a -> IO a
                         getTimeDelta mVar currentTime = (currentTime -) <$> swapMVar mVar currentTime

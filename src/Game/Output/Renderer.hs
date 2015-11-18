@@ -1,6 +1,5 @@
 module Game.Output.Renderer (render) where
 
-import System.IO.Unsafe (unsafePerformIO)
 import Data.StateVar (($=))
 import Data.Colour.SRGB (toSRGB24, RGB(..))
 import Linear (V2(..), V4(..))
