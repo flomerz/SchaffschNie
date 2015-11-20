@@ -29,10 +29,13 @@ instance GameRenderer GameObjectColumn where
 
 
 instance GameRenderer GameData where
-    render resSettings@(windowSize, renderScale) (GameData gameLevels (GameSession player curLvl curGamePosX)) = scene_ $ backgroundShape ++ levelShape ++ playerShape
+    render resSettings@(windowSize, renderScale) (GameData gameLevels (GameSession player curLvl curGamePosX curTries)) = scene_ $ backgroundShape ++ levelShape ++ playerShape
         where
             backgroundShape = [image_ "background" (toupleF fromIntegral windowSize) Nothing]
-            levelShape = map renderColumn columns
+            levelShape = map renderColumn columns ++ levelText ++ triesText
+                where
+                    levelText = [text_ ("Level: " ++ show curLvl) 40 & pos_ (20 , (fromIntegral $ snd windowSize) - 60)]
+                    triesText = [text_ ("Tries: " ++ show curTries) 40 & pos_ (20, (fromIntegral $ snd windowSize) - 110)]
             playerShape = [image_ "player" (renderScale, renderScale) (Just ((0, 0), (255, 288))) & pos_ (toupleF (* renderScale) $ pPosition player)]
             renderColumn col@(GameObjectColumn posX _) = render resSettings $ col { oPositionX = posX - curGamePosX }
             columns = filter columnCondition $ gameLevels !! (curLvl - 1)

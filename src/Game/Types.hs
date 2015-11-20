@@ -28,6 +28,7 @@ data GamePlayer = GamePlayer { pPosition :: (Double, Double)
 data GameSession = GameSession { gPlayer    :: GamePlayer
                                , gLevel     :: Int
                                , gPosX      :: Double
+                               , gTries     :: Int
                                }
 
 data GameData = GameData { gLevels      :: [GameLevel]
@@ -48,7 +49,7 @@ initGamePlayer :: GamePlayer
 initGamePlayer = GamePlayer (3,1)
 
 initGameSession :: GameSession
-initGameSession = GameSession initGamePlayer 1 0
+initGameSession = GameSession initGamePlayer 1 0 0
 
 initGameObjectAir :: GameObject
 initGameObjectAir = def { oType             = Air
