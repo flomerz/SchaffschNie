@@ -45,7 +45,7 @@ init winSize@(winWidth, winHeight) title = do
         loadImages :: SDL.Renderer -> IO GraphicImages
         loadImages renderer = do
             imgPlayer <- loadImage "res/imgs/player.bmp"
-            imgAir    <- loadImage "res/imgs/box.bmp"
+            imgAir    <- loadImage "res/imgs/background.bmp"
             imgBox    <- loadImage "res/imgs/box.bmp"
             imgLava   <- loadImage "res/imgs/lava.bmp"
             return $ GraphicImages imgPlayer imgAir imgBox imgLava

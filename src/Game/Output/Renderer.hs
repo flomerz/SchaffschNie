@@ -12,11 +12,11 @@ import Game.Output.Shapes
 
 
 render :: GraphicsEnv -> RenderObject -> IO ()
-render env@((_, winY), _, renderer, graphicImages) obj = setRenderAttrs >> renderShape
+render env@((_, winY), _, renderer, graphicImages) obj = renderShape
     where
-        setRenderAttrs = do
-                let (RGB r g b) = toSRGB24 $ objColour obj
-                SDL.rendererDrawColor renderer $= V4 r g b maxBound
+        -- setRenderAttrs = do
+        --         let (RGB r g b) = toSRGB24 $ objColour obj
+        --         SDL.rendererDrawColor renderer $= V4 r g b maxBound
 
         renderShape = case obj of
             RenderObject (Multiple objects) _ _ -> mapM_ (render env) objects
@@ -30,7 +30,7 @@ render env@((_, winY), _, renderer, graphicImages) obj = setRenderAttrs >> rende
                                 PlayerImage     -> fst $ imagePlayer graphicImages
                                 BoxImage        -> fst $ imageBox graphicImages
                                 LavaImage       -> fst $ imageLava graphicImages
-                                _               -> fst $ imageAir graphicImages
+                                BackgroundImage -> fst $ imageAir graphicImages
                         let stripeRectange = case stripe of
                                 Just stripeData -> createRectangle stripeData
                                 _               -> Nothing

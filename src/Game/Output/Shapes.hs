@@ -26,7 +26,8 @@ import Data.Colour
 import Data.Colour.SRGB
 import Data.Colour.Names
 
-data ImageType = PlayerImage
+data ImageType = BackgroundImage
+               | PlayerImage
                | AirImage
                | BoxImage
                | LavaImage

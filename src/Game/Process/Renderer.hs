@@ -14,22 +14,26 @@ instance GameRenderer GameObject where
     render (_, renderScale) gameObject = shape
         where
             shape = case (oType gameObject) of
-                Air -> rect & colour_ (sRGB24 0x89 0xDE 0xFA)
                 Box -> image BoxImage
                 Lava -> image LavaImage
+                _ -> error "render object type not supported"
             posY = renderScale * (oPositionY gameObject)
             image imgType = image_ imgType (renderScale, renderScale) Nothing & posY_ posY
-            rect = rectangle_ (renderScale, renderScale) & posY_ posY
+
 
 instance GameRenderer GameObjectColumn where
-    render resSettings@(_, renderScale) (GameObjectColumn posX objs) = scene_ $ map renderObject objs
-        where renderObject obj = render resSettings obj & posX_ (renderScale * posX)
+    render resSettings@(_, renderScale) (GameObjectColumn posX objs) = scene_ $ map renderObject $ filter objectCondition objs
+        where
+            renderObject obj = render resSettings obj & posX_ (renderScale * posX)
+            objectCondition obj = oType obj /= Air
+
 
 instance GameRenderer GameData where
-    render resSettings@(windowSize, renderScale) (GameData gameLevels (GameSession player curLvl curGamePosX)) = scene_ $ levelShape ++ [playerShape]
+    render resSettings@(windowSize, renderScale) (GameData gameLevels (GameSession player curLvl curGamePosX)) = scene_ $ backgroundShape ++ levelShape ++ playerShape
         where
-            playerShape = image_ PlayerImage (renderScale, renderScale) (Just ((0, 0), (255, 288))) & pos_ (toupleF (* renderScale) $ pPosition player)
+            backgroundShape = [image_ BackgroundImage (toupleF fromIntegral windowSize) Nothing]
             levelShape = map renderColumn columns
+            playerShape = [image_ PlayerImage (renderScale, renderScale) (Just ((0, 0), (255, 288))) & pos_ (toupleF (* renderScale) $ pPosition player)]
             renderColumn col@(GameObjectColumn posX _) = render resSettings $ col { oPositionX = posX - curGamePosX }
             columns = filter columnCondition $ gameLevels !! (curLvl - 1)
                 where
