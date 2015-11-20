@@ -1,14 +1,16 @@
 module Game.Output.Types where
 
+import Data.Map
+
 import qualified SDL
 
 import Game.AppTypes (WindowSize)
 
 
-type GraphicsEnv = (WindowSize, SDL.Window, SDL.Renderer, GraphicImages)
+data GraphicsEnv = GraphicsEnv { gWindowSize :: WindowSize
+                               , gWindow     :: SDL.Window
+                               , gRenderer   :: SDL.Renderer
+                               , gImages     :: Map String GraphicImage
+                               }
 
-data GraphicImages = GraphicImages { imagePlayer    :: (SDL.Texture, SDL.Surface)
-                                   , imageAir       :: (SDL.Texture, SDL.Surface)
-                                   , imageBox       :: (SDL.Texture, SDL.Surface)
-                                   , imageLava      :: (SDL.Texture, SDL.Surface)
-                                   }
+type GraphicImage = (SDL.Texture, SDL.Surface)

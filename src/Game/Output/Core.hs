@@ -9,6 +9,8 @@ module Game.Output.Core
 
 import Prelude hiding (init)
 
+import System.Directory
+import Data.Map (Map, fromList, elems)
 import Control.Monad
 import Control.Concurrent
 import Data.Text (pack)
@@ -39,44 +41,44 @@ init winSize@(winWidth, winHeight) title = do
 
     graphicImages <- loadImages renderer
 
-    return (winSize, window, renderer, graphicImages)
+    return $ GraphicsEnv winSize window renderer graphicImages
 
     where
-        loadImages :: SDL.Renderer -> IO GraphicImages
+        loadImages :: SDL.Renderer -> IO (Map String GraphicImage)
         loadImages renderer = do
-            imgPlayer <- loadImage "res/imgs/player.bmp"
-            imgAir    <- loadImage "res/imgs/background.bmp"
-            imgBox    <- loadImage "res/imgs/box.bmp"
-            imgLava   <- loadImage "res/imgs/lava.bmp"
-            return $ GraphicImages imgPlayer imgAir imgBox imgLava
-            where loadImage file = do
-                    imageSurface <- SDL.loadBMP file
+            imageFiles <- getDirectoryContents "res/imgs/"
+            images <- mapM loadImage $ filter (\imageFile -> imageFile /= ".." && imageFile /= ".") imageFiles
+            return $ fromList images
+            where
+                loadImage :: FilePath -> IO (String, GraphicImage)
+                loadImage filename = do
+                    let name = takeWhile (/='.') filename
+                    imageSurface <- SDL.loadBMP $ "res/imgs/" ++ filename
                     imageTexture <- SDL.createTextureFromSurface renderer imageSurface
-                    return (imageTexture, imageSurface)
+                    return (name, (imageTexture, imageSurface))
 
 
 quit :: GraphicsEnv -> IO ()
-quit (_, window, renderer, graphicImages) = do
-    destroyImages graphicImages
+quit (GraphicsEnv _ window renderer graphicImages) = do
+    destroyImages $ elems graphicImages
     SDL.destroyRenderer renderer
     SDL.destroyWindow window
     Font.quit
     SDL.quit
     where
-        destroyImages :: GraphicImages -> IO ()
-        destroyImages (GraphicImages imgPlayer imgAir imgBox imgLava) = do
-            destroyImage imgPlayer
-            destroyImage imgAir
-            destroyImage imgBox
-            destroyImage imgLava
+        destroyImages :: [GraphicImage] -> IO ()
+        destroyImages images = do
+            mapM_ destroyImage images
             where destroyImage (imageTexture, imageSurface) = do
                     SDL.destroyTexture imageTexture
                     SDL.freeSurface imageSurface
 
 
 output :: (MVar Integer, MVar Integer) -> GraphicsEnv -> RenderObject -> IO ()
-output (fpsCounter, fpsLastTicks) env@(_, _, renderer, _) obj = SDL.clear renderer >> render env obj >> SDL.present renderer >> measureFPS
-    where measureFPS = do
+output (fpsCounter, fpsLastTicks) env obj = SDL.clear renderer >> render env obj >> SDL.present renderer >> measureFPS
+    where
+        renderer = gRenderer env
+        measureFPS = do
             ticks <- SDL.ticks
             lastTicks <- readMVar fpsLastTicks
             modifyMVar_ fpsCounter (return . succ)

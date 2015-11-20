@@ -14,8 +14,8 @@ instance GameRenderer GameObject where
     render (_, renderScale) gameObject = shape
         where
             shape = case (oType gameObject) of
-                Box -> image BoxImage
-                Lava -> image LavaImage
+                Box -> image "box"
+                Lava -> image "lava"
                 _ -> error "render object type not supported"
             posY = renderScale * (oPositionY gameObject)
             image imgType = image_ imgType (renderScale, renderScale) Nothing & posY_ posY
@@ -31,9 +31,9 @@ instance GameRenderer GameObjectColumn where
 instance GameRenderer GameData where
     render resSettings@(windowSize, renderScale) (GameData gameLevels (GameSession player curLvl curGamePosX)) = scene_ $ backgroundShape ++ levelShape ++ playerShape
         where
-            backgroundShape = [image_ BackgroundImage (toupleF fromIntegral windowSize) Nothing]
+            backgroundShape = [image_ "background" (toupleF fromIntegral windowSize) Nothing]
             levelShape = map renderColumn columns
-            playerShape = [image_ PlayerImage (renderScale, renderScale) (Just ((0, 0), (255, 288))) & pos_ (toupleF (* renderScale) $ pPosition player)]
+            playerShape = [image_ "player" (renderScale, renderScale) (Just ((0, 0), (255, 288))) & pos_ (toupleF (* renderScale) $ pPosition player)]
             renderColumn col@(GameObjectColumn posX _) = render resSettings $ col { oPositionX = posX - curGamePosX }
             columns = filter columnCondition $ gameLevels !! (curLvl - 1)
                 where
