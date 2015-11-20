@@ -32,8 +32,9 @@ render env@(GraphicsEnv (_, winY) _ renderer graphicImages) obj = case obj of
                   textSurface <- fmap unmanagedSurface $ Font.renderTextSolid font txt (SDL.Color 0 0x0D 0xBF 0)
                   textTexture <- SDL.createTextureFromSurface renderer textSurface
                   SDL.copy renderer textTexture Nothing $ createRectangle $ reflect (pos, toupleF fromIntegral textSize)
-                  Font.closeFont font
+                  SDL.destroyTexture textTexture
                   SDL.freeSurface textSurface
+                  Font.closeFont font
 
         where
             createRectangle ((px, py), (sx, sy)) = Just $ SDL.Rectangle (P $ mkv2 px py) $ mkv2 sx sy
