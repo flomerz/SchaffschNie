@@ -11,7 +11,6 @@ data GameObjectType = Air
 
 data GameObject = GameObject { oPositionY               :: Double
                              , oType                    :: GameObjectType
-                             , oSpriteNumber            :: Int
                              , oColliding               :: Bool
                              , oDrivable                :: Bool
                              , oAccelerationY           :: Double
@@ -38,18 +37,23 @@ data GameData = GameData { gLevels      :: [GameLevel]
 
 
 currentGameLevel :: GameData -> GameLevel
-currentGameLevel (GameData gameLevels gameSession) = gameLevels !! ((gLevel gameSession) - 1)
+currentGameLevel gameData = gameLevels !! currentLevel
+    where
+        gameLevels = gLevels gameData
+        currentLevel = (gLevel $ gSession gameData) - 1
 
 
 -- TYPE INITIALIZERS
 instance Default GameObject where
     def = GameObject { oPositionY           = 0
                      , oType                = error "Object Type wasn't define"
-                     , oSpriteNumber        = 0
                      , oColliding           = False
                      , oDrivable            = False
                      , oAccelerationY       = 0
                      }
+
+initGameData :: [GameLevel] -> GameData
+initGameData lvls = GameData lvls initGameSession
 
 initGamePlayer :: GamePlayer
 initGamePlayer = GamePlayer (3,1)

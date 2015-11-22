@@ -20,8 +20,8 @@ import qualified Game.Process.Core as Process
 
 
 windowSize :: (Int, Int)
-windowSize = (1024, 640)
--- windowSize = (1280, 768)
+-- windowSize = (1024, 640)
+windowSize = (1280, 768)
 
 renderScale :: Double
 renderScale = 32
@@ -35,7 +35,7 @@ run = do
         graficsEnv <- Output.init windowSize windowTitle
 
         lvl <- Level.read 1
-        let gameData = GameData [lvl] initGameSession
+        let gameData = initGameData [lvl]
 
         fpsCounter <- newMVar (0::Integer)
         fpsLastTicks <- newMVar (0::Integer)
