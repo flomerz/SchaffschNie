@@ -9,7 +9,6 @@ module Game.Output.Core
 
 import Prelude hiding (init)
 
-import System.Directory
 import Data.Map (Map, fromList, elems)
 import Control.Monad
 import Control.Concurrent
@@ -20,6 +19,7 @@ import Linear (V2(..), V4(..))
 import qualified SDL
 import qualified Graphics.UI.SDL.TTF as Font
 
+import Game.Util
 import Game.AppTypes (WindowSize)
 import Game.Output.Types
 import Game.Output.Shapes
@@ -46,14 +46,17 @@ init winSize@(winWidth, winHeight) title = do
     where
         loadImages :: SDL.Renderer -> IO (Map String GraphicImage)
         loadImages renderer = do
-            imageFiles <- getDirectoryContents "res/imgs/"
-            images <- mapM loadImage $ filter (\imageFile -> imageFile /= ".." && imageFile /= ".") imageFiles
-            return $ fromList images
+            loadImageDir "res/imgs/"
             where
-                loadImage :: FilePath -> IO (String, GraphicImage)
-                loadImage filename = do
-                    let name = takeWhile (/='.') filename
-                    imageSurface <- SDL.loadBMP $ "res/imgs/" ++ filename
+                loadImageDir :: FilePath -> IO (Map String GraphicImage)
+                loadImageDir filePath = do
+                    imageFiles <- getRecursiveContents filePath
+                    images <- mapM (loadImage filePath) imageFiles
+                    return $ fromList images
+                loadImage :: FilePath -> String -> IO (String, GraphicImage)
+                loadImage filePath fileName = do
+                    let name = takeWhile (/='.') fileName
+                    imageSurface <- SDL.loadBMP $ filePath ++ fileName
                     imageTexture <- SDL.createTextureFromSurface renderer imageSurface
                     return (name, (imageTexture, imageSurface))
 
