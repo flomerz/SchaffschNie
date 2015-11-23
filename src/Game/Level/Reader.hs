@@ -5,7 +5,6 @@ module Game.Level.Reader
 import Prelude hiding (read)
 
 import Data.List
-import Data.List.Split
 
 import Game.Types
 import Game.Level.Parser
@@ -18,5 +17,5 @@ read :: Int -> IO GameLevel
 read lvl = fmap (parseLevel . transform) $ readFile (levelPath ++ "lvl" ++ (show lvl) ++ ".txt")
 
 transform :: String -> [ObjectSignColumn]
-transform str = addPosition . transpose . reverse $ splitOn "\n" str
+transform str = addPosition . transpose . reverse . lines $ str
          where addPosition lvl = zip (map (\x -> zip x [0..]) lvl) [0..]
