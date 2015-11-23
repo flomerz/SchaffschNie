@@ -4,13 +4,12 @@ import Data.Default
 
 
 -- TYPE DEFINITIONS
-data GameObjectType = Air
-                    | Box
-                    | Lava
+data GameObjectType = GameImage String
+                    | GameAnimation String Int Double
                     deriving (Show, Eq)
 
 data GameObject = GameObject { oPositionY               :: Double
-                             , oType                    :: GameObjectType
+                             , oType                    :: Maybe GameObjectType
                              , oColliding               :: Bool
                              , oDrivable                :: Bool
                              , oAccelerationY           :: Double
@@ -61,21 +60,21 @@ initGamePlayer = GamePlayer (3,1)
 initGameSession :: GameSession
 initGameSession = GameSession initGamePlayer 1 0 0
 
-initGameObjectAir :: GameObject
-initGameObjectAir = def { oType             = Air
-                        , oAccelerationY    = 9.81
-                        }
+initGameObjectFallable :: Maybe GameObjectType -> Double -> GameObject
+initGameObjectFallable objType objAccelerationY = def { oType             = objType
+                                                      , oAccelerationY    = objAccelerationY
+                                                      }
 
-initGameObjectBox :: GameObject
-initGameObjectBox = def { oType             = Box
-                        , oColliding        = True
-                        , oDrivable         = True
-                        }
+initGameObjectDrivable :: Maybe GameObjectType -> GameObject
+initGameObjectDrivable objType = def { oType          = objType
+                                     , oColliding     = True
+                                     , oDrivable      = True
+                                     }
 
-initGameObjectLava :: GameObject
-initGameObjectLava = def { oType            = Lava
-                         , oColliding       = True
-                         }
+initGameObjectObstacle :: Maybe GameObjectType -> GameObject
+initGameObjectObstacle objType = def { oType            = objType
+                                     , oColliding       = True
+                                     }
 
 
 -- TYPE ATTRIBUT CHANGE FUNCTIONS

@@ -1,5 +1,7 @@
 module Game.Process.Renderer where
 
+import Data.Maybe
+
 import Game.AppTypes (ResolutionSettings)
 import Game.Types
 import Game.Output.Shapes
@@ -14,8 +16,8 @@ instance GameRenderer GameObject where
     render (_, renderScale) (time, gameObject) = shape
         where
             shape = case (oType gameObject) of
-                Box -> image "box"
-                Lava -> image $ sprite time "lava/" 10 45
+                Just (GameImage imgStr) -> image imgStr
+                Just (GameAnimation dirStr imgCount imgSpeed) -> image $ sprite time dirStr imgCount imgSpeed
                 _ -> error "render object type not supported"
             posY = renderScale * (oPositionY gameObject)
             image imgType = image_ imgType (renderScale, renderScale) Nothing & posY_ posY
@@ -25,7 +27,7 @@ instance GameRenderer GameObjectColumn where
     render resSettings@(_, renderScale) (time, (GameObjectColumn posX objs)) = scene_ $ map renderObject $ filter objectCondition objs
         where
             renderObject obj = render resSettings (time, obj) & posX_ (renderScale * posX)
-            objectCondition obj = oType obj /= Air
+            objectCondition obj = isJust $ oType obj
 
 
 instance GameRenderer GameData where
@@ -36,7 +38,7 @@ instance GameRenderer GameData where
                 where
                     levelText = [text_ ("Level: " ++ show curLvl) 40 & pos_ (20 , y - 60)]
                     triesText = [text_ ("Tries: " ++ show curTries) 40 & pos_ (20, y - 110)]
-            playerShape = [image_ (sprite time "player/run/" 4 2) (renderScale, renderScale) Nothing & pos_ (toupleF (* renderScale) $ pPosition player)]
+            playerShape = [image_ (sprite time "player/run/" 2 4) (renderScale, renderScale) Nothing & pos_ (toupleF (* renderScale) $ pPosition player)]
             renderColumn col@(GameObjectColumn posX _) = render resSettings $ (time, col { oPositionX = posX - curGamePosX })
             columns = filter columnCondition $ currentGameLevel gameData
                 where
@@ -47,6 +49,6 @@ instance GameRenderer GameData where
             dWindowSize@(x, y) = toupleF fromIntegral windowSize
 
 
-sprite :: Double -> String -> Double -> Int -> String
-sprite time dir imgsPerSec imgCount = dir ++ show spriteNumber
+sprite :: Double -> String -> Int -> Double -> String
+sprite time dir imgCount imgsPerSec = dir ++ show spriteNumber
     where spriteNumber  = (floor (imgsPerSec * time) `mod` imgCount) + 1
