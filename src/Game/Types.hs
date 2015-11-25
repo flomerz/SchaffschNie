@@ -21,7 +21,9 @@ data GameObjectColumn = GameObjectColumn { oPositionX   :: Double
 
 type GameLevel = [GameObjectColumn]
 
-data GamePlayer = GamePlayer { pPosition :: (Double, Double)
+data GamePlayer = GamePlayer { pPosX :: Double
+                             , pPosY :: Double
+                             , pV    :: Double
                              } deriving (Show, Eq)
 
 data GameSession = GameSession { gPlayer    :: GamePlayer
@@ -55,7 +57,7 @@ initGameData :: [GameLevel] -> GameData
 initGameData lvls = GameData lvls initGameSession
 
 initGamePlayer :: GamePlayer
-initGamePlayer = GamePlayer (3,1)
+initGamePlayer = GamePlayer 3 1 2
 
 initGameSession :: GameSession
 initGameSession = GameSession initGamePlayer 1 0 0
