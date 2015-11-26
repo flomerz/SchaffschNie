@@ -38,8 +38,12 @@ instance GameRenderer GameData where
                 where
                     levelText = [text_ ("Level: " ++ show curLvl) 40 & pos_ (20 , y - 60)]
                     triesText = [text_ ("Tries: " ++ show curTries) 40 & pos_ (20, y - 110)]
-            playerShape = [image_ (sprite time "player/run/" 2 4) (renderScale, renderScale) Nothing & pos_ (toupleF (* renderScale) $ playerPos)]
-                where playerPos = (pPosX player, pPosY player)
+            playerShape = [image_ playerImage (renderScale, renderScale) Nothing & pos_ (toupleF (* renderScale) $ playerPos)]
+                where
+                    playerPos = (pPosX player, pPosY player)
+                    playerImage | pV player == 0    = sprite time "player/run/" 2 4
+                                | pV player > 0     = "player/jump/up"
+                                | otherwise         = "player/jump/down"
             renderColumn col@(GameObjectColumn posX _) = render resSettings $ (time, col { oPositionX = posX - curGamePosX })
             columns = filter columnCondition $ currentGameLevel gameData
                 where

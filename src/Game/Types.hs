@@ -57,7 +57,7 @@ initGameData :: [GameLevel] -> GameData
 initGameData lvls = GameData lvls initGameSession
 
 initGamePlayer :: GamePlayer
-initGamePlayer = GamePlayer 3 1 2
+initGamePlayer = GamePlayer 2 15 0
 
 initGameSession :: GameSession
 initGameSession = GameSession initGamePlayer 1 0 0
