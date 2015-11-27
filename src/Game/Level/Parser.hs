@@ -15,7 +15,7 @@ parseLevel lvl = map parseSignColumn lvl
         where parseSignColumn (signs, posX) = parseGameObjectColumn signs posX
 
 parseGameObject :: Char -> Double -> GameObject
-parseGameObject '.' = setPositionY $ initGameObjectFallable Nothing 9.81
+parseGameObject '.' = setPositionY $ initGameObjectFallable Nothing 100
 parseGameObject 'G' = setPositionY $ initGameObjectDrivable $ image_ "ground_1"
 parseGameObject 'g' = setPositionY $ initGameObjectDrivable $ image_ "ground_2"
 parseGameObject 'B' = setPositionY $ initGameObjectDrivable $ image_ "box_1"

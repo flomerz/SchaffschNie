@@ -36,6 +36,7 @@ data GameData = GameData { gLevels      :: [GameLevel]
                          , gSession     :: GameSession
                          }
 
+type GameDataSession = (GameLevel, GameSession)
 
 currentGameLevel :: GameData -> GameLevel
 currentGameLevel gameData = gameLevels !! currentLevel

@@ -14,3 +14,7 @@ keyPressed :: Key -> SF AppInput (Event ())
 keyPressed key = keyPress >>^ filterE (key ==) >>^ tagWith ()
 
 
+jumpTrigger :: SF AppInput (Event())
+jumpTrigger = proc input -> do
+    spacebarTab <- keyPressed KeySpace -< input
+    returnA -< spacebarTab

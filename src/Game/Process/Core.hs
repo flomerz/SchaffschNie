@@ -12,7 +12,7 @@ import qualified Game.Process.Renderer as Renderer
 
 
 run :: ResolutionSettings -> GameData -> SF AppInputEvent AppOutput
-run resSettings gameData = accumulateInput >>> (time &&& Logic.game gameData >>^ (Renderer.render resSettings)) &&& handleExit >>^ reduceOutput
+run resSettings gameData = accumulateInput >>> (time &&& Logic.gameSF gameData >>^ (Renderer.render resSettings)) &&& handleExit >>^ reduceOutput
 
 accumulateInput :: SF AppInputEvent AppInput
 accumulateInput = accumHoldBy accumulateEvent initAppInput

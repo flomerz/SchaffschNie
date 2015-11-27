@@ -41,7 +41,7 @@ instance GameRenderer GameData where
             playerShape = [image_ playerImage (renderScale, renderScale) Nothing & pos_ (toupleF (* renderScale) $ playerPos)]
                 where
                     playerPos = (pPosX player, pPosY player)
-                    playerImage | pV player == 0    = sprite time "player/run/" 2 4
+                    playerImage | pV player == 0    = sprite time "player/run/" 2 10
                                 | pV player > 0     = "player/jump/up"
                                 | otherwise         = "player/jump/down"
             renderColumn col@(GameObjectColumn posX _) = render resSettings $ (time, col { oPositionX = posX - curGamePosX })

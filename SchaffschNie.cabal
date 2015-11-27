@@ -29,6 +29,7 @@ executable SchaffschNie
                        , directory >= 1.2
                        , filepath >= 1.4
   hs-source-dirs:      src
+  ghc-options:         -Wall
   default-language:    Haskell2010
 
 -- executable SchaffschNie-Prof
@@ -52,4 +53,5 @@ executable SchaffschNie
 --                        , directory >= 1.2
 --                        , filepath >= 1.4
 --   hs-source-dirs:      src
+--   ghc-options:         -Wall
 --   default-language:    Haskell2010
