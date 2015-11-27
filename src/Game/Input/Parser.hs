@@ -24,6 +24,7 @@ parse payload = case payload of
                                             (SDL.Pressed, SDL.ButtonLeft)   -> Mouse $ Just Left
                                             (SDL.Pressed, SDL.ButtonRight)  -> Mouse $ Just Right
                                             (SDL.Released, _)               -> Mouse Nothing
+                                            _                               -> NoInput
 
         _                               -> NoInput
 

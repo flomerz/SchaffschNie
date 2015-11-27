@@ -29,7 +29,7 @@ import Game.Output.Renderer
 init :: WindowSize -> String -> IO GraphicsEnv
 init winSize@(winWidth, winHeight) title = do
     SDL.initialize [SDL.InitVideo]
-    Font.init
+    _ <- Font.init
 
     let windowConf = SDL.defaultWindow { SDL.windowInitialSize = V2 (fromIntegral winWidth) (fromIntegral winHeight) }
     window <- SDL.createWindow (pack title) windowConf
@@ -86,6 +86,6 @@ output (fpsCounter, fpsLastTicks) env obj = SDL.clear renderer >> render env obj
             lastTicks <- readMVar fpsLastTicks
             modifyMVar_ fpsCounter (return . succ)
             when ((lastTicks + 1000) < (fromIntegral ticks)) $ do
-                swapMVar fpsLastTicks $ fromIntegral ticks
+                _ <- swapMVar fpsLastTicks $ fromIntegral ticks
                 curFps <- swapMVar fpsCounter (0::Integer)
                 putStrLn $ "FPS: " ++ show curFps
