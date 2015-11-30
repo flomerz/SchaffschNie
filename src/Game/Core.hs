@@ -24,18 +24,25 @@ windowSize :: (Int, Int)
 windowSize = (1280, 768)
 
 renderScale :: Double
-renderScale = 32
+renderScale = 48
 
 windowTitle :: String
 windowTitle = "Schaffsch Nie"
 
+worldSpeed :: Double
+worldSpeed = 15
+
+jumpSpeed :: Double
+jumpSpeed = 25
 
 run :: IO ()
 run = do
         graficsEnv <- Output.init windowSize windowTitle
 
-        lvl <- Level.read 1
-        let gameData = initGameData [lvl]
+        levels <- mapM Level.read [1, 2, 3]
+        let gamePlayer = initGamePlayer 2 4 100
+        let gameSession = initGameSession gamePlayer 3
+        let gameData = initGameData gameSession (GameSettings windowSize renderScale worldSpeed jumpSpeed) levels
 
         fpsCounter <- newMVar (0::Integer)
         fpsLastTicks <- newMVar (0::Integer)

@@ -4,8 +4,7 @@ import Data.Map
 
 import qualified SDL
 
-import Game.AppTypes (WindowSize)
-
+type WindowSize = (Int, Int)
 
 data GraphicsEnv = GraphicsEnv { gWindowSize :: WindowSize
                                , gWindow     :: SDL.Window

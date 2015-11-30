@@ -2,7 +2,6 @@ module Game.Process.Renderer where
 
 import Data.Maybe
 
-import Game.AppTypes (ResolutionSettings)
 import Game.Types
 import Game.Output.Shapes
 
@@ -31,7 +30,7 @@ instance GameRenderer GameObjectColumn where
 
 
 instance GameRenderer GameData where
-    render resSettings@(windowSize, renderScale) (time, gameData@(GameData _ (GameSession player curLvl curGamePosX curTries))) = scene_ $ backgroundShape ++ levelShape ++ playerShape
+    render resSettings@(windowSize, renderScale) (time, gameData@(GameData _ (GameSession player curLvl curGamePosX curTries) _)) = scene_ $ backgroundShape ++ levelShape ++ playerShape
         where
             backgroundShape = [image_ "background" dWindowSize Nothing]
             levelShape = map renderColumn columns ++ levelText ++ triesText
@@ -41,9 +40,8 @@ instance GameRenderer GameData where
             playerShape = [image_ playerImage (renderScale, renderScale) Nothing & pos_ (toupleF (* renderScale) $ playerPos)]
                 where
                     playerPos = (pPosX player, pPosY player)
-                    playerImage | pV player == 0    = sprite time "player/run/" 2 10
-                                | pV player > 0     = "player/jump/up"
-                                | otherwise         = "player/jump/down"
+                    playerImage | pV player == 0    = sprite time "player/run/" 3 10
+                                | otherwise         = "player/jump"
             renderColumn col@(GameObjectColumn posX _) = render resSettings $ (time, col { oPositionX = posX - curGamePosX })
             columns = filter columnCondition $ currentGameLevel gameData
                 where

@@ -20,7 +20,6 @@ import qualified SDL
 import qualified Graphics.UI.SDL.TTF as Font
 
 import Game.Util
-import Game.AppTypes (WindowSize)
 import Game.Output.Types
 import Game.Output.Shapes
 import Game.Output.Renderer

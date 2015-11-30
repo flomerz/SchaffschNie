@@ -1,6 +1,8 @@
  {-# LANGUAGE Arrows            #-}
 module Game.Process.Logic where
 
+import Data.Fixed
+
 import FRP.Yampa
 
 import Game.AppTypes
@@ -11,124 +13,146 @@ import Game.Process.Event
 import Debug.Trace
 
 
-worldSpeed :: Double
-worldSpeed = 10
-
-jumpSpeed :: Double
-jumpSpeed = 25
-
-
 -- Main Function
 gameSF :: GameData -> SF AppInput GameData
 gameSF gameData0 = switch sf newLevel
     where
         sf = proc appInput -> do
-            nextSession <- gameSessionSF (gameLevel, gameSession0) -< appInput
-            let nextGameData = gameData0 { gSession = nextSession }
+            nextSession <- gameSessionSF gameData0 -< appInput
+            let nextGameData = setGameSession_ gameData0 nextSession
             -- take key 1, 2, 3 event for level selection
+
             returnA -< (nextGameData, NoEvent)
 
         newLevel number = gameSF nextGameData
             where nextGameData = gameData0 { gSession = gameSession0 { gLevel = number} }
 
-        gameLevel = (currentGameLevel gameData0)
         gameSession0 = (gSession gameData0)
 
 
 
 -- Game Session
-gameSessionSF :: GameDataSession -> SF AppInput GameSession
-gameSessionSF gameDataSession0@(gameLevel, gameSession0) = switch sf restartLevel
+gameSessionSF :: GameData -> SF AppInput GameSession
+gameSessionSF gameData0 = switch sf restartLevel
     where
         sf = proc appInput -> do
-            gameSession <- moveWorldSF gameSession0 -< ()
+            gameSession <- moveWorldSF gameData0 -< ()
 
-            nextGamePlayer <- playerFallingSF gameLevel gamePlayer0 -< (appInput, gameSession)
+            nextGamePlayer <- playerFallingSF gameData0 -< (appInput, gameSession)
             let nextGameSession = gameSession { gPlayer = nextGamePlayer }
+            let nextGameData = gameData0 { gSession = nextGameSession }
 
             -- check events
-            endOfWorldEvent <- edge -< checkEndOfWorld (gameLevel, nextGameSession)
-            collisionEvent <- edge -< checkCollision (gameLevel, nextGameSession)
+            endOfWorldEvent <- edge -< checkEndOfWorld nextGameData
+            collisionEvent <- edge -< checkCollision nextGameData
             let restartLevelEvent = rMerge endOfWorldEvent collisionEvent
 
             returnA -< (nextGameSession, restartLevelEvent)
-            where gamePlayer0 = gPlayer gameSession0
 
-        restartLevel _ = gameSessionSF gameDataSession0
+        restartLevel _ = gameSessionSF ajustedTriesGameData
+            where
+                ajustedTriesGameData = gameData0 { gSession = ajustedTriesGameSession }
+                ajustedTriesGameSession = gameSession0 { gTries = (gTries gameSession0) + 1 }
+
+        gameSession0 = gSession gameData0
 
 
 -- Game Session Functions
-checkEndOfWorld :: GameDataSession -> Bool
-checkEndOfWorld (gameLevel, gameSession) = endReached
-    where endReached = (getEndPositionOfLevel <= gPosX gameSession)
-          getEndPositionOfLevel = (oPositionX $ last gameLevel) - 5
-
-checkCollision :: GameDataSession -> Bool
-checkCollision gameDataSession = oColliding frontObj || oColliding topObj
+checkEndOfWorld :: GameData -> Bool
+checkEndOfWorld gameData = endReached
     where
-        frontObj = getPlayerGameObject gameDataSession 1 0
-        topObj = getPlayerGameObject gameDataSession 0 1
+        endReached = (getEndPositionOfLevel <= gPosX gameSession)
+        getEndPositionOfLevel = (oPositionX $ last gameLevel) - 5
+        gameSession = gSession gameData
+        gameLevel = currentGameLevel gameData
+
+checkCollision :: GameData -> Bool
+checkCollision gameData = oColliding frontObj || oColliding playerObj || (oColliding topObj && isPlayerInTheAir gameData)
+    where
+        frontObj = getPlayerGameObject gameData 1 0
+        playerObj = getPlayerGameObject gameData 0 0
+        topObj = getPlayerGameObject gameData 0 1
 
 
 -- World SF
-moveWorldSF :: GameSession -> SF a GameSession
-moveWorldSF (gameSession0) = proc _ -> do
-        nextPosX <- moveWorldPositionSF (gPosX gameSession0) -< ()
+moveWorldSF :: GameData -> SF a GameSession
+moveWorldSF gameData0 = proc _ -> do
+        nextPosX <- moveWorldPositionSF worldSpeed worldPosX -< ()
         returnA -< gameSession0 { gPosX = nextPosX }
+        where
+            gameSession0 = gSession gameData0
+            worldPosX = (gPosX gameSession0)
+            worldSpeed = gWorldSpeed $ gSettings gameData0
 
-moveWorldPositionSF :: Double -> SF () Double
-moveWorldPositionSF gPosX0 = constant worldSpeed >>> imIntegral gPosX0
+
+moveWorldPositionSF :: Double -> Double -> SF () Double
+moveWorldPositionSF worldSpeed gPosX0 = constant worldSpeed >>> imIntegral gPosX0
 
 
 
 -- Player SF State
-playerDrivingSF :: GameLevel -> GamePlayer -> SF (AppInput, GameSession) GamePlayer
-playerDrivingSF gameLevel gamePlayer0 = trace ("drive " ++ show gamePlayer0) $ switch sf (\gamePlayer -> playerFallingSF gameLevel gamePlayer)
+playerDrivingSF :: GameData -> SF (AppInput, GameSession) GamePlayer
+playerDrivingSF gameData0 = trace ("driving") $ dSwitch sf (\gameData -> playerFallingSF gameData)
     where
         sf = proc (appInput, gameSession) -> do
-            let nextGameSession = gameSession { gPlayer = gamePlayer0 }
+            let nextGameData = setGamePlayer_ (setGameSession_ gameData0 gameSession) gamePlayer0
 
             -- check events
-            playerFallingEvent <- tagWith gamePlayer0 ^<< edge -< checkPlayerStartFalling (gameLevel, nextGameSession)
-            playerJumpEvent <- tagWith jumpGamePlayer ^<< jumpTrigger -< appInput
+            playerFallingEvent <- tagWith gameData0 ^<< edge -< checkPlayerStartFalling nextGameData
+            playerJumpEvent <- tagWith jumpGameData ^<< jumpTrigger -< appInput
             let playerInTheAirEvent = lMerge playerFallingEvent playerJumpEvent
 
             returnA -< (gamePlayer0, playerInTheAirEvent)
 
+        gamePlayer0 = gPlayer $ gSession gameData0
+        jumpGameData = setGamePlayer_ gameData0 jumpGamePlayer
         jumpGamePlayer = gamePlayer0 { pV = jumpSpeed }
+        jumpSpeed = gJumpSpeed $ gSettings gameData0
 
 
-playerFallingSF :: GameLevel -> GamePlayer -> SF (AppInput, GameSession) GamePlayer
-playerFallingSF gameLevel gamePlayer0 = trace ("fall " ++ show gamePlayer0) $ switch sf (\gamePlayer -> playerDrivingSF gameLevel gamePlayer)
+playerFallingSF :: GameData -> SF (AppInput, GameSession) GamePlayer
+playerFallingSF gameData0 = trace ("falling") $ switch sf (\gameData -> playerDrivingSF gameData)
     where
         sf = proc (_, gameSession) -> do
-            let playerAccelerationY = oAccelerationY $ getPlayerGameObject (gameLevel, gameSession) 0 0
-            nextPlayer <- fallPlayer gamePlayer0 -< playerAccelerationY
-            let nextGameSession = gameSession { gPlayer = nextPlayer }
+            let nextGameData = setGameSession_ gameData0 gameSession
+            nextPlayer <- fallPlayer gamePlayer0 -< pAccelerationY gamePlayer0
 
             -- check event
-            playerDrivingEvent <- edge -< checkPlayerStopFalling (gameLevel, nextGameSession)
+            playerDrivingEvent <- edge -< checkPlayerStopFalling $ setGamePlayer_ nextGameData nextPlayer
 
-            returnA -< (nextPlayer, playerDrivingEvent `tag` ajustPlayer nextPlayer)
+            returnA -< (nextPlayer, playerDrivingEvent `tag` setGamePlayer_ nextGameData (ajustPlayer nextPlayer))
             where
                 ajustPlayer player = player { pPosY = (fromInteger . ceiling $ (pPosY player)) , pV = 0}
 
+        gamePlayer0 = gPlayer $ gSession gameData0
+
 
 -- Player Functions
-checkPlayerStartFalling :: GameDataSession -> Bool
-checkPlayerStartFalling gameDataSession = not $ oDrivable $ getPlayerGameObject gameDataSession 0 (-1)
+checkPlayerStartFalling :: GameData -> Bool
+checkPlayerStartFalling gameData = not $ oDrivable $ getPlayerGameObject gameData 0 (-1)
 
-checkPlayerStopFalling :: GameDataSession -> Bool
-checkPlayerStopFalling gameDataSession = oDrivable $ getPlayerGameObject gameDataSession 0 0
+checkPlayerStopFalling :: GameData -> Bool
+checkPlayerStopFalling gameData = (oDrivable bottomObj || oDrivable bottomFrontObj)
+    where
+        bottomObj = getPlayerGameObject gameData 0 0
+        bottomFrontObj = getPlayerGameObject gameData 1 0
 
-getPlayerGameObject :: GameDataSession -> Int -> Int -> GameObject
-getPlayerGameObject (gameLevel, gameSession) offsetX offsetY = oObjects gameColumn !! (gamePlayerY + offsetY)
+isPlayerInTheAir :: GameData -> Bool
+isPlayerInTheAir gameData = playerY `mod'` playerHeight > 0
+        where
+            playerY = (pPosY $ gPlayer $ gSession gameData)
+            playerHeight = 1
+
+getPlayerGameObject :: GameData -> Int -> Int -> GameObject
+getPlayerGameObject gameData offsetX offsetY = oObjects gameColumn !! (gamePlayerY + offsetY)
     where
         gameColumn = gameLevel !! (gamePosX + gamePlayerX + offsetX)
         gamePosX = floor $ gPosX gameSession
         gamePlayer = gPlayer gameSession
         gamePlayerX = floor $ pPosX gamePlayer
         gamePlayerY = floor $ pPosY gamePlayer
+        gameSession = gSession gameData
+        gameLevel = currentGameLevel gameData
 
 
 -- Player SF

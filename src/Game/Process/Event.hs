@@ -2,13 +2,14 @@
 module Game.Process.Event where
 
 import FRP.Yampa
+import FRP.Yampa.Event
 
 import Game.AppTypes
 import Game.Input.Events
 
 
 keyPress :: SF AppInput (Event Key)
-keyPress = inpKey ^>> edgeJust
+keyPress = arr (maybeToEvent . inpKey)
 
 keyPressed :: Key -> SF AppInput (Event ())
 keyPressed key = keyPress >>^ filterE (key ==) >>^ tagWith ()

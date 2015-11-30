@@ -14,7 +14,7 @@ levelPath :: FilePath
 levelPath = "res/lvls/"
 
 read :: Int -> IO GameLevel
-read lvl = fmap (parseLevel . transform) $ readFile (levelPath ++ "lvl" ++ (show lvl) ++ ".txt")
+read lvl = fmap (parseLevel . transform) $ readFile (levelPath ++ (show lvl) ++ ".txt")
 
 transform :: String -> [ObjectSignColumn]
 transform str = addPosition . transpose . reverse . lines $ str
