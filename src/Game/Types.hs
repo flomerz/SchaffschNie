@@ -31,6 +31,7 @@ data GameSession = GameSession { gPlayer    :: GamePlayer
                                , gLevel     :: Int
                                , gPosX      :: Double
                                , gTries     :: Int
+                               , gDone      :: Bool
                                } deriving (Show)
 
 type RenderScale = Double
@@ -66,7 +67,7 @@ initGamePlayer :: Double -> Double -> Double -> GamePlayer
 initGamePlayer x y acc = GamePlayer x y 0 acc
 
 initGameSession :: GamePlayer -> Int -> GameSession
-initGameSession gamePlayer level = GameSession gamePlayer level 0 0
+initGameSession gamePlayer level = GameSession gamePlayer level 0 0 False
 
 initGameObjectFallable :: Maybe GameObjectType -> Double -> GameObject
 initGameObjectFallable objType objAccelerationY = def { oType             = objType
@@ -97,6 +98,19 @@ setGameSession_ gameData gameSession = gameData { gSession = gameSession }
 
 setGamePlayer_ :: GameData -> GamePlayer -> GameData
 setGamePlayer_ gameData gamePlayer = gameData { gSession = (gSession gameData) { gPlayer = gamePlayer } }
+
+increaseGameTries_ :: GameData -> GameData
+increaseGameTries_ gameData = gameData { gSession = gameSession { gTries = succ $ gTries gameSession } }
+    where gameSession = gSession gameData
+
+doneGameSession_ :: GameData -> GameData
+doneGameSession_ gameData = gameData { gSession = (gSession gameData) { gDone = True } }
+
+resetGameSession_ :: GameData -> GameData
+resetGameSession_ gameData = gameData { gSession = (gSession gameData) { gTries = 0
+                                                                       , gPosX = 0
+                                                                       , gDone = False
+                                                                       } }
 
 
 currentGameLevel :: GameData -> GameLevel

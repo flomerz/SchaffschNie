@@ -12,17 +12,37 @@ import Game.Process.Event
 
 -- Main Function
 gameSF :: GameData -> SF AppInput GameData
-gameSF gameData0 = dSwitch sf changeLevel
+gameSF gameData0 = switch sf changeLevel
     where
         sf = proc appInput -> do
-            nextSession <- gameSessionSF gameData0 -< appInput
+            nextSession <- gameLevelSF gameData0 -< appInput
             let nextGameData = setGameSession_ gameData0 nextSession
-            -- take key 1, 2, 3 event for level selection
+
+            -- check level switch event
             changeLevelEvent <- levelTrigger -< appInput
 
             returnA -< (nextGameData, changeLevelEvent)
 
         changeLevel number = gameSF $ setGameLevel_ gameData0 number
+
+
+gameLevelSF :: GameData -> SF AppInput GameSession
+gameLevelSF gameData0 = switch sf levelDone
+    where
+        sf = proc appInput -> do
+            gameSession <- gameSessionSF gameData0 -< appInput
+            let nextGameData = setGameSession_ gameData0 gameSession
+            endOfWorldEvent <- edge -< checkEndOfWorld nextGameData
+            returnA -< (gameSession, endOfWorldEvent `tag` nextGameData)
+        levelDone gameData = gameLevelDoneSF (doneGameSession_ gameData)
+
+gameLevelDoneSF :: GameData -> SF AppInput GameSession
+gameLevelDoneSF gameData0 = switch sf restartLevel
+    where
+        sf = proc appInput -> do
+            restartLevelEvent <- spaceTrigger -< appInput
+            returnA -< (gSession gameData0, restartLevelEvent)
+        restartLevel _ = gameLevelSF (resetGameSession_ gameData0)
 
 
 -- Game Session
@@ -31,24 +51,17 @@ gameSessionSF gameData0 = switch sf restartLevel
     where
         sf = proc appInput -> do
             gameSession <- moveWorldSF gameData0 -< ()
-
             nextGamePlayer <- playerFallingSF gameData0 -< (appInput, gameSession)
+
             let nextGameSession = gameSession { gPlayer = nextGamePlayer }
-            let nextGameData = gameData0 { gSession = nextGameSession }
+            let nextGameData = setGameSession_ gameData0 nextGameSession
 
-            -- check events
-            endOfWorldEvent <- edge -< checkEndOfWorld nextGameData
-            collisionEvent <- edge -< checkCollision nextGameData
-            let restartLevelEvent = rMerge endOfWorldEvent collisionEvent
+            -- check collision event
+            collisionEvent <- tagWith (increaseGameTries_ gameData0) ^<< edge -< checkCollision nextGameData
 
-            returnA -< (nextGameSession, restartLevelEvent)
+            returnA -< (nextGameSession, collisionEvent)
 
-        restartLevel _ = gameSessionSF ajustedTriesGameData
-            where
-                ajustedTriesGameData = gameData0 { gSession = ajustedTriesGameSession }
-                ajustedTriesGameSession = gameSession0 { gTries = (gTries gameSession0) + 1 }
-
-        gameSession0 = gSession gameData0
+        restartLevel gameData = gameSessionSF gameData
 
 
 -- Game Session Functions
@@ -56,7 +69,7 @@ checkEndOfWorld :: GameData -> Bool
 checkEndOfWorld gameData = endReached
     where
         endReached = (getEndPositionOfLevel <= gPosX gameSession)
-        getEndPositionOfLevel = (oPositionX $ last gameLevel) - 5
+        getEndPositionOfLevel = (oPositionX $ last gameLevel) - 30
         gameSession = gSession gameData
         gameLevel = currentGameLevel gameData
 

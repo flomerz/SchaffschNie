@@ -21,6 +21,12 @@ edgeKeyPressed :: Key -> SF AppInput (Event ())
 edgeKeyPressed key = edgeKeyPress >>^ filterE (key ==) >>^ tagWith ()
 
 
+spaceTrigger :: SF AppInput (Event())
+spaceTrigger = proc input -> do
+    spacebarTab <- keyPressed KeySpace -< input
+    returnA -< spacebarTab
+
+
 levelTrigger :: SF AppInput (Event Int)
 levelTrigger = proc input -> do
     key1Pressed <- tagWith 1 ^<< edgeKeyPressed Key1 -< input
@@ -29,6 +35,4 @@ levelTrigger = proc input -> do
     returnA -< mergeEvents [key1Pressed, key2Pressed, key3Pressed]
 
 jumpTrigger :: SF AppInput (Event())
-jumpTrigger = proc input -> do
-    spacebarTab <- keyPressed KeySpace -< input
-    returnA -< spacebarTab
+jumpTrigger = spaceTrigger

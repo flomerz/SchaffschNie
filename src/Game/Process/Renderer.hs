@@ -30,8 +30,9 @@ instance GameRenderer GameObjectColumn where
 
 
 instance GameRenderer GameData where
-    render resSettings@(windowSize, renderScale) (time, gameData@(GameData _ (GameSession player curLvl curGamePosX curTries) _)) = scene_ $ backgroundShape ++ levelShape ++ playerShape
+    render resSettings@(windowSize, renderScale) (time, gameData@(GameData _ (GameSession player curLvl curGamePosX curTries sessionDone) _)) = renderObject
         where
+            renderObject = scene_ $ backgroundShape ++ levelShape ++ playerShape ++ (if sessionDone then sessionDoneText else [])
             backgroundShape = [image_ "background" dWindowSize Nothing]
             levelShape = map renderColumn columns ++ levelText ++ triesText
                 where
@@ -42,6 +43,10 @@ instance GameRenderer GameData where
                     playerPos = (pPosX player, pPosY player)
                     playerImage | pV player == 0    = sprite time "player/run/" 3 10
                                 | otherwise         = "player/jump"
+            sessionDoneText = [ text_ ("Level Done!") 100 & pos_ (250, y / 2)
+                              , text_ ("Press space to restart the level!") 40 & pos_ (200, (y / 2) - 60)
+                              ]
+
             renderColumn col@(GameObjectColumn posX _) = render resSettings $ (time, col { oPositionX = posX - curGamePosX })
             columns = filter columnCondition $ currentGameLevel gameData
                 where
