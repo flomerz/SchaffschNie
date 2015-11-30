@@ -10,25 +10,19 @@ import Game.Types
 import Game.Process.Event
 
 
-import Debug.Trace
-
-
 -- Main Function
 gameSF :: GameData -> SF AppInput GameData
-gameSF gameData0 = switch sf newLevel
+gameSF gameData0 = dSwitch sf changeLevel
     where
         sf = proc appInput -> do
             nextSession <- gameSessionSF gameData0 -< appInput
             let nextGameData = setGameSession_ gameData0 nextSession
             -- take key 1, 2, 3 event for level selection
+            changeLevelEvent <- levelTrigger -< appInput
 
-            returnA -< (nextGameData, NoEvent)
+            returnA -< (nextGameData, changeLevelEvent)
 
-        newLevel number = gameSF nextGameData
-            where nextGameData = gameData0 { gSession = gameSession0 { gLevel = number} }
-
-        gameSession0 = (gSession gameData0)
-
+        changeLevel number = gameSF $ setGameLevel_ gameData0 number
 
 
 -- Game Session
@@ -92,7 +86,7 @@ moveWorldPositionSF worldSpeed gPosX0 = constant worldSpeed >>> imIntegral gPosX
 
 -- Player SF State
 playerDrivingSF :: GameData -> SF (AppInput, GameSession) GamePlayer
-playerDrivingSF gameData0 = trace ("driving") $ dSwitch sf (\gameData -> playerFallingSF gameData)
+playerDrivingSF gameData0 = switch sf (\gameData -> playerFallingSF gameData)
     where
         sf = proc (appInput, gameSession) -> do
             let nextGameData = setGamePlayer_ (setGameSession_ gameData0 gameSession) gamePlayer0
@@ -111,7 +105,7 @@ playerDrivingSF gameData0 = trace ("driving") $ dSwitch sf (\gameData -> playerF
 
 
 playerFallingSF :: GameData -> SF (AppInput, GameSession) GamePlayer
-playerFallingSF gameData0 = trace ("falling") $ switch sf (\gameData -> playerDrivingSF gameData)
+playerFallingSF gameData0 = switch sf (\gameData -> playerDrivingSF gameData)
     where
         sf = proc (_, gameSession) -> do
             let nextGameData = setGameSession_ gameData0 gameSession

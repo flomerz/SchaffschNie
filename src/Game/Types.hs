@@ -89,6 +89,9 @@ initGameObjectObstacle objType = def { oType            = objType
 setGameObjectPositionY :: GameObject -> Double -> GameObject
 setGameObjectPositionY obj pos = obj { oPositionY = pos }
 
+setGameLevel_ :: GameData -> Int -> GameData
+setGameLevel_ gameData level = gameData { gSession = (gSession gameData) { gLevel = level } }
+
 setGameSession_ :: GameData -> GameSession -> GameData
 setGameSession_ gameData gameSession = gameData { gSession = gameSession }
 
