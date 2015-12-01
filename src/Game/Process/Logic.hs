@@ -34,6 +34,7 @@ gameLevelSF gameData0 = switch sf levelDone
             let nextGameData = setGameSession_ gameData0 gameSession
             endOfWorldEvent <- edge -< checkEndOfWorld nextGameData
             returnA -< (gameSession, endOfWorldEvent `tag` nextGameData)
+
         levelDone gameData = gameLevelDoneSF (doneGameSession_ gameData)
 
 gameLevelDoneSF :: GameData -> SF AppInput GameSession
@@ -42,6 +43,7 @@ gameLevelDoneSF gameData0 = switch sf restartLevel
         sf = proc appInput -> do
             restartLevelEvent <- spaceTrigger -< appInput
             returnA -< (gSession gameData0, restartLevelEvent)
+
         restartLevel _ = gameLevelSF (resetGameSession_ gameData0)
 
 
@@ -57,9 +59,9 @@ gameSessionSF gameData0 = switch sf restartLevel
             let nextGameData = setGameSession_ gameData0 nextGameSession
 
             -- check collision event
-            collisionEvent <- tagWith (increaseGameTries_ gameData0) ^<< edge -< checkCollision nextGameData
+            collisionEvent <- edge -< checkCollision nextGameData
 
-            returnA -< (nextGameSession, collisionEvent)
+            returnA -< (nextGameSession, collisionEvent `tag` collidedGameData_ gameData0 nextGameData)
 
         restartLevel gameData = gameSessionSF gameData
 
