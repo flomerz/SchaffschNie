@@ -5,8 +5,6 @@ module Game.Output.Audio
 
 import Control.Concurrent.MVar
 import System.Process
-import System.Process.Internals
-import System.Posix.Signals
 
 
 soundDir :: String
@@ -30,15 +28,5 @@ stopSound audioProcessVar = do
     maybeAudioProcess <- tryTakeMVar audioProcessVar
     case maybeAudioProcess of
         Just audioProcess -> do
-            terminateProcessUnix audioProcess
-        _ -> return ()
-
-
-terminateProcessUnix :: ProcessHandle -> IO ()
-terminateProcessUnix ph = do
-    let (ProcessHandle pmvar _) = ph
-    ph_ <- readMVar pmvar
-    case ph_ of
-        OpenHandle pid -> do -- pid is a POSIX pid
-            signalProcess 9 pid
+            terminateProcess audioProcess
         _ -> return ()
