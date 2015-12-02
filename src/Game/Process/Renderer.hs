@@ -30,7 +30,7 @@ instance GameRenderer GameObjectColumn where
 
 
 instance GameRenderer GameData where
-    render resSettings@(windowSize, renderScale) (time, gameData@(GameData _ (GameSession player curLvl curGamePosX curTries curBest sessionDone) _)) = renderObject
+    render resSettings@(windowSize, renderScale) (time, gameData@(GameData _ (GameSession player curLvl curGamePosX curTries progress progressBest sessionDone) _)) = renderObject
         where
             renderObject = scene_ $ backgroundShape ++ levelShape ++ playerShape ++ (if sessionDone then sessionDoneText else [])
             backgroundShape = [image_ "background" dWindowSize Nothing]
@@ -38,7 +38,8 @@ instance GameRenderer GameData where
                 where
                     levelText = [ text_ ("Level: " ++ show curLvl) 40 & pos_ (180 , y - 60)
                                 , text_ ("Tries: " ++ show curTries) 40 & pos_ (480, y - 60)
-                                , text_ ("Best: " ++ show curBest ++ "%") 40 & pos_ (800, y - 60)
+                                , text_ ("Best: " ++ show progressBest ++ "%") 40 & pos_ (800, y - 60)
+                                , text_ ("Now:  " ++ show progress ++ "%") 40 & pos_ (800, y - 110)
                                 ]
             playerShape = [image_ playerImage (renderScale, renderScale) Nothing & pos_ (toupleF (* renderScale) $ playerPos)]
                 where

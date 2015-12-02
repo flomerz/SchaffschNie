@@ -29,12 +29,13 @@ data GamePlayer = GamePlayer { pPosX          :: Double
                              , pAccelerationY :: Double
                              } deriving (Show, Eq)
 
-data GameSession = GameSession { gPlayer    :: GamePlayer
-                               , gLevel     :: Int
-                               , gPosX      :: Double
-                               , gTries     :: Int
-                               , gBest      :: Int
-                               , gDone      :: Bool
+data GameSession = GameSession { gPlayer        :: GamePlayer
+                               , gLevel         :: Int
+                               , gPosX          :: Double
+                               , gTries         :: Int
+                               , gProgress      :: Int
+                               , gProgressBest  :: Int
+                               , gDone          :: Bool
                                } deriving (Show)
 
 type RenderScale = Double
@@ -69,7 +70,7 @@ initGamePlayer :: Double -> Double -> Double -> GamePlayer
 initGamePlayer x y acc = GamePlayer x y 0 acc
 
 initGameSession :: GamePlayer -> Int -> GameSession
-initGameSession gamePlayer level = GameSession gamePlayer level 0 0 0 False
+initGameSession gamePlayer level = GameSession gamePlayer level 0 0 0 0 False
 
 initGameObjectFallable :: Maybe GameObjectType -> Double -> GameObject
 initGameObjectFallable objType objAccelerationY = def { oType             = objType
@@ -102,30 +103,39 @@ setGamePlayer_ :: GameData -> GamePlayer -> GameData
 setGamePlayer_ gameData gamePlayer = gameData { gSession = (gSession gameData) { gPlayer = gamePlayer } }
 
 setGameBest_ :: GameData -> Int -> GameData
-setGameBest_ gameData best = gameData { gSession = (gSession gameData) { gBest = best } }
+setGameBest_ gameData best = gameData { gSession = (gSession gameData) { gProgressBest = best } }
+
+getGameProgress_ :: GameData -> Int
+getGameProgress_  gameData = round (worldPosX / fromIntegral maxObj * 100)
+    where
+        worldPosX = gPosX $ gSession gameData
+        maxObj = (length $ currentGameLevel gameData) - 31
+
+getGameProgressBest_ :: GameData -> GameData -> Int
+getGameProgressBest_ gameData0 nextGameData = if curBest > lastBest then curBest else lastBest
+    where
+        lastBest = gProgressBest $ gSession gameData0
+        curBest = getGameProgress_ nextGameData
 
 collidedGameData_ :: GameData -> GameData -> GameData
 collidedGameData_ gameData0 nextGameData = gameData0 { gSession = gameSession { gTries = succ $ gTries gameSession
-                                                                              , gBest = if curBest > lastBest then curBest else lastBest
+                                                                              , gProgressBest = getGameProgressBest_ gameData0 nextGameData
                                                                               } }
-    where
-        gameSession = gSession gameData0
-        lastBest = gBest $ gSession nextGameData
-        curBest = round (worldPosX / fromIntegral maxObj * 100)
-            where
-                worldPosX = gPosX $ gSession nextGameData
-                maxObj = length $ currentGameLevel nextGameData
+    where gameSession = gSession gameData0
 
+updateGameProgress_ :: GameData -> GameData
+updateGameProgress_ gameData = gameData { gSession = (gSession gameData) { gProgress = getGameProgress_ gameData
+                                                                         , gProgressBest = getGameProgressBest_ gameData gameData
+                                                                         } }
 
 doneGameSession_ :: GameData -> GameData
-doneGameSession_ gameData = gameData { gSession = (gSession gameData) { gDone = True
-                                                                      , gBest = 100
-                                                                      } }
+doneGameSession_ gameData = gameData { gSession = (gSession gameData) { gDone = True } }
 
 resetGameSession_ :: GameData -> GameData
 resetGameSession_ gameData = gameData { gSession = (gSession gameData) { gTries = 0
                                                                        , gPosX = 0
-                                                                       , gBest = 0
+                                                                       , gProgress = 0
+                                                                       , gProgressBest = 0
                                                                        , gDone = False
                                                                        } }
 

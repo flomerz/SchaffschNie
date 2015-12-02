@@ -12,7 +12,7 @@ import Game.Process.Event
 
 -- Main Function
 gameSF :: GameData -> SF AppInput GameData
-gameSF gameData0 = switch sf changeLevel
+gameSF gameData0 = switch sf changeLevel >>^ updateGameProgress_
     where
         sf = proc appInput -> do
             nextSession <- gameLevelSF gameData0 -< appInput
