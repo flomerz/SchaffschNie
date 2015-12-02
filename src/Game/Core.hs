@@ -14,6 +14,7 @@ import Game.Types
 
 import qualified Game.Input.Core as Input
 import qualified Game.Output.Core as Output
+import qualified Game.Output.Audio as Audio
 
 import qualified Game.Level.Reader as Level
 import qualified Game.Process.Core as Process
@@ -46,17 +47,20 @@ run = do
 
         fpsCounter <- newMVar (0::Integer)
         fpsLastTicks <- newMVar (0::Integer)
+        audioProcessVar <- newEmptyMVar
 
         startYampa (Event <$> Input.input)
-                   (Output.output (fpsCounter, fpsLastTicks) graficsEnv)
+                   (Output.output (fpsCounter, fpsLastTicks, audioProcessVar) graficsEnv)
                    Input.getTime
                    (Process.run (windowSize, renderScale) gameData)
+
+        Audio.stopSound audioProcessVar
 
         Output.quit graficsEnv
 
 
 startYampa :: IO AppInputEvent                  -- input function
-            -> (Output.RenderObject -> IO ())   -- output function
+            -> (AppOutput -> IO ())   -- output function
             -> IO Double                        -- time function
             -> SF AppInputEvent AppOutput       -- process function
             -> IO ()
@@ -78,7 +82,7 @@ startYampa inputFunction outputFunction timeFunction processFunction = do
 
             yampaOutput :: Bool -> AppOutput -> IO Bool
             yampaOutput changed appOutput = do
-                    when changed $ outputFunction $ outRenderObject appOutput
+                    when changed $ outputFunction appOutput
                     return $ outExit appOutput
 
         Yampa.reactimate yampaInitial yampaInput yampaOutput processFunction

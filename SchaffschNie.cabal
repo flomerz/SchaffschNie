@@ -28,6 +28,8 @@ executable SchaffschNie
                        , containers >= 0.5
                        , directory >= 1.2
                        , filepath >= 1.4
+                       , process
+                       , unix
   hs-source-dirs:      src
   ghc-options:         -Wall
   default-language:    Haskell2010
@@ -52,6 +54,8 @@ executable SchaffschNie
 --                        , containers >= 0.5
 --                        , directory >= 1.2
 --                        , filepath >= 1.4
+--                        , process
+--                        , unix
 --   hs-source-dirs:      src
 --   ghc-options:         -Wall
 --   default-language:    Haskell2010

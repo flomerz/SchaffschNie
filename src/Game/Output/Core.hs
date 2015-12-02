@@ -4,7 +4,6 @@ module Game.Output.Core
     , output
     , module Game.Output.Types
     , module Game.Output.Shapes
-    , module Game.Output.Renderer
     ) where
 
 import Prelude hiding (init)
@@ -12,6 +11,7 @@ import Prelude hiding (init)
 import Data.Map (Map, fromList, elems)
 import Control.Monad
 import Control.Concurrent
+import System.Process
 import Data.Text (pack)
 import Data.StateVar (($=))
 import Linear (V2(..), V4(..))
@@ -20,9 +20,11 @@ import qualified SDL
 import qualified Graphics.UI.SDL.TTF as Font
 
 import Game.Util
+import Game.AppTypes
 import Game.Output.Types
 import Game.Output.Shapes
-import Game.Output.Renderer
+import qualified Game.Output.Renderer as Graphics
+import qualified Game.Output.Audio as Audio
 
 
 init :: WindowSize -> String -> IO GraphicsEnv
@@ -76,10 +78,19 @@ quit (GraphicsEnv _ window renderer graphicImages) = do
                     SDL.freeSurface imageSurface
 
 
-output :: (MVar Integer, MVar Integer) -> GraphicsEnv -> RenderObject -> IO ()
-output (fpsCounter, fpsLastTicks) env obj = SDL.clear renderer >> render env obj >> SDL.present renderer >> measureFPS
+output :: (MVar Integer, MVar Integer, MVar ProcessHandle) -> GraphicsEnv -> AppOutput -> IO ()
+output (fpsCounter, fpsLastTicks, audioProcessVar) environment appOutput = do
+    -- grafic rendering
+    SDL.clear renderer >> Graphics.render environment obj >> SDL.present renderer >> measureFPS
+
+    -- sound
+    case outAudio appOutput of
+        Just sound -> Audio.playSound sound audioProcessVar
+        _ -> return ()
+
     where
-        renderer = gRenderer env
+        obj = outRenderObject appOutput
+        renderer = gRenderer environment
         measureFPS = do
             ticks <- SDL.ticks
             lastTicks <- readMVar fpsLastTicks

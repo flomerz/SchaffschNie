@@ -14,7 +14,11 @@ data AppInput = AppInput { inpMouse     :: MouseEvent
                          , inpQuit      :: Bool
                          } deriving (Show)
 
+
+type PlayAudio = Maybe Int
+
 data AppOutput = AppOutput { outRenderObject   :: RenderObject
+                           , outAudio          :: PlayAudio
                            , outExit           :: Bool
                            }
 
@@ -28,5 +32,6 @@ initAppInput = AppInput { inpMouse  = Nothing
 
 initAppOutput :: AppOutput
 initAppOutput = AppOutput { outRenderObject     = error "no RenderObject defined"
+                          , outAudio            = Nothing
                           , outExit             = False
                           }

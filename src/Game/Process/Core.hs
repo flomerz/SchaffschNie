@@ -12,7 +12,14 @@ import qualified Game.Process.Renderer as Renderer
 
 
 run :: ResolutionSettings -> GameData -> SF AppInputEvent AppOutput
-run resSettings gameData = accumulateInput >>> (time &&& Logic.gameSF gameData >>^ (Renderer.render resSettings)) &&& handleExit >>^ reduceOutput
+run resSettings gameData0 = proc appInputEvent -> do
+    appInput <- accumulateInput -< appInputEvent
+    gameData <- Logic.gameSF gameData0 -< appInput
+    exit <- handleExit -< appInput
+    t <- time -< ()
+    let renderObject = Renderer.render resSettings (t, gameData)
+    let audio = playAudio gameData
+    returnA -< reduceOutput renderObject audio exit
 
 accumulateInput :: SF AppInputEvent AppInput
 accumulateInput = accumHoldBy accumulateEvent initAppInput
@@ -27,7 +34,11 @@ accumulateEvent appInput inputEvent = case inputEvent of
 handleExit :: SF AppInput Bool
 handleExit = arr inpQuit
 
-reduceOutput :: (RenderObject, Bool) -> AppOutput
-reduceOutput (renderObj, exit) = initAppOutput { outRenderObject = renderObj
-                                               , outExit         = exit
-                                               }
+playAudio :: GameData -> PlayAudio
+playAudio gameData = if (gPosX $ gSession gameData) == 0 then Just (gLevel $ gSession gameData) else Nothing
+
+reduceOutput :: RenderObject -> PlayAudio -> Bool -> AppOutput
+reduceOutput renderObj audio exit = initAppOutput { outRenderObject = renderObj
+                                                  , outExit         = exit
+                                                  , outAudio        = audio
+                                                  }
