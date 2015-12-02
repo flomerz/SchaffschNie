@@ -14,6 +14,10 @@ import Game.Output.Shapes
 import Game.Output.Util
 
 
+fontDir :: String
+fontDir = "res/fonts/"
+
+
 render :: GraphicsEnv -> RenderObject -> IO ()
 render env@(GraphicsEnv (_, winY) _ renderer graphicImages) obj = case obj of
     RenderObject (Multiple objects) _ -> mapM_ (render env) objects
@@ -27,7 +31,7 @@ render env@(GraphicsEnv (_, winY) _ renderer graphicImages) obj = case obj of
                 SDL.copy renderer imageTexture stripeRectange (createRectangle $ reflect (pos, imgSize))
 
             Text txt fontSize -> do
-                  font <- Font.openFont "res/fonts/Boxy-Bold.ttf" fontSize
+                  font <- Font.openFont (fontDir ++ "Boxy-Bold.ttf") fontSize
                   textSize <- Font.sizeText font txt
                   textSurface <- fmap unmanagedSurface $ Font.renderTextSolid font txt (SDL.Color 0 0x0D 0xBF 0)
                   textTexture <- SDL.createTextureFromSurface renderer textSurface
