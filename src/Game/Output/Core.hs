@@ -27,7 +27,7 @@ import qualified Game.Output.Renderer as Graphics
 import qualified Game.Output.Audio as Audio
 
 
-init :: WindowSize -> String -> IO GraphicsEnv
+init :: GraphicWindowSize -> String -> IO GraphicsEnv
 init winSize@(winWidth, winHeight) title = do
     SDL.initialize [SDL.InitVideo]
     _ <- Font.init

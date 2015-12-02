@@ -2,8 +2,6 @@ module Game.Types where
 
 import Data.Default
 
-import Game.Output.Types
-
 
 -- TYPE DEFINITIONS
 data GameObjectType = GameImage String
@@ -39,6 +37,7 @@ data GameSession = GameSession { gPlayer        :: GamePlayer
                                } deriving (Show)
 
 type RenderScale = Double
+type WindowSize = (Int, Int)
 type ResolutionSettings = (WindowSize, RenderScale)
 
 data GameSettings = GameSettings { gWindowSize   :: WindowSize
@@ -109,7 +108,8 @@ getGameProgress_ :: GameData -> Int
 getGameProgress_  gameData = round (worldPosX / fromIntegral maxObj * 100)
     where
         worldPosX = gPosX $ gSession gameData
-        maxObj = (length $ currentGameLevel gameData) - 31
+        maxObj = (length $ currentGameLevel gameData) - gameColumnCount
+        gameColumnCount = getGameColumnCount gameData
 
 getGameProgressBest_ :: GameData -> GameData -> Int
 getGameProgressBest_ gameData0 nextGameData = if curBest > lastBest then curBest else lastBest
@@ -134,10 +134,16 @@ doneGameSession_ gameData = gameData { gSession = (gSession gameData) { gDone = 
 resetGameSession_ :: GameData -> GameData
 resetGameSession_ gameData = gameData { gSession = (gSession gameData) { gTries = 0
                                                                        , gPosX = 0
-                                                                       , gProgress = 0
                                                                        , gProgressBest = 0
                                                                        , gDone = False
                                                                        } }
+
+getGameColumnCount :: GameData -> Int
+getGameColumnCount gameData = ceiling $ windowWidth / renderScale
+    where
+      gameSettings = gSettings gameData
+      windowWidth = fromIntegral . fst $ gWindowSize gameSettings
+      renderScale = gRenderScale gameSettings
 
 
 currentGameLevel :: GameData -> GameLevel

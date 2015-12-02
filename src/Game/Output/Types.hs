@@ -4,9 +4,9 @@ import Data.Map
 
 import qualified SDL
 
-type WindowSize = (Int, Int)
+type GraphicWindowSize = (Int, Int)
 
-data GraphicsEnv = GraphicsEnv { gWindowSize :: WindowSize
+data GraphicsEnv = GraphicsEnv { gWindowSize :: GraphicWindowSize
                                , gWindow     :: SDL.Window
                                , gRenderer   :: SDL.Renderer
                                , gImages     :: Map String GraphicImage

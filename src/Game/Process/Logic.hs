@@ -71,7 +71,8 @@ checkEndOfWorld :: GameData -> Bool
 checkEndOfWorld gameData = endReached
     where
         endReached = (getEndPositionOfLevel <= gPosX gameSession)
-        getEndPositionOfLevel = (oPositionX $ last gameLevel) - 30
+        gameColumnOffset = (fromIntegral $ getGameColumnCount gameData) - (pred $ pPosX $ gPlayer $ gSession gameData)
+        getEndPositionOfLevel = (oPositionX $ last gameLevel) - gameColumnOffset
         gameSession = gSession gameData
         gameLevel = currentGameLevel gameData
 
