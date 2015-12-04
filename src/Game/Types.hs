@@ -65,8 +65,8 @@ instance Default GameObject where
 initGameData :: GameSession -> GameSettings -> [GameLevel] -> GameData
 initGameData gameSession gameSettings lvls = GameData lvls gameSession gameSettings
 
-initGamePlayer :: Double -> Double -> Double -> GamePlayer
-initGamePlayer x y acc = GamePlayer x y 0 acc
+initGamePlayer :: GamePlayer
+initGamePlayer = GamePlayer 2 6 0 100
 
 initGameSession :: GamePlayer -> Int -> GameSession
 initGameSession gamePlayer level = GameSession gamePlayer level 0 0 0 0 False
@@ -133,10 +133,11 @@ doneGameSession_ gameData = gameData { gSession = (gSession gameData) { gDone = 
 
 resetGameSession_ :: GameData -> GameData
 resetGameSession_ gameData = gameData { gSession = (gSession gameData) { gTries = 0
-                                                                       , gPosX = 0
-                                                                       , gProgressBest = 0
-                                                                       , gDone = False
-                                                                       } }
+                                                                                  , gPosX = 0
+                                                                                  , gProgressBest = 0
+                                                                                  , gDone = False
+                                                                                  , gPlayer = initGamePlayer
+                                                                                  } }
 
 getGameColumnCount :: GameData -> Int
 getGameColumnCount gameData = ceiling $ windowWidth / renderScale

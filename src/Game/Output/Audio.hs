@@ -19,7 +19,7 @@ playSound sound audioProcessVar = do
     stopSound audioProcessVar
 
     let file = soundDir ++ (show sound) ++ soundExtension
-    audioProcess <- spawnProcess "cvlc" ["-q", file]
+    audioProcess <- spawnProcess "cvlc" ["-q", "--play-and-exit", file]
     _ <- tryPutMVar audioProcessVar audioProcess
     return ()
 

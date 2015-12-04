@@ -41,8 +41,7 @@ run = do
         graficsEnv <- Output.init windowSize windowTitle
 
         levels <- mapM Level.read [1, 2, 3]
-        let gamePlayer = initGamePlayer 2 6 100
-        let gameSession = initGameSession gamePlayer 1
+        let gameSession = initGameSession initGamePlayer 1
         let gameData = initGameData gameSession (GameSettings windowSize renderScale worldSpeed jumpSpeed) levels
 
         fpsCounter <- newMVar (0::Integer)
