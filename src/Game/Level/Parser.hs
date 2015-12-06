@@ -20,6 +20,7 @@ parseGameObject 'G' = setGameObjectPositionY $ initGameObjectDrivable $ image_ "
 parseGameObject 'g' = setGameObjectPositionY $ initGameObjectDrivable $ image_ "ground_2"
 parseGameObject 'B' = setGameObjectPositionY $ initGameObjectDrivable $ image_ "box_1"
 parseGameObject 'Z' = setGameObjectPositionY $ initGameObjectObstacle $ image_ "zacken_2"
+parseGameObject 'S' = setGameObjectPositionY $ initGameObjectObstacle $ animation_ "saege/" 4 80
 parseGameObject 'L' = setGameObjectPositionY $ initGameObjectObstacle $ animation_ "lava/" 45 10
 parseGameObject c = error $ "GameObject for char " ++ show c ++ " not found!"
 
